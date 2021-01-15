@@ -13,11 +13,17 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+
+//        val intent = Intent(this, PhoneVerification::class.java)
+//        intent.putExtra("phone", "9998884433")
+//        intent.putExtra("code", "+7")
+//        startActivity(intent)
+//        finish()
+
         Handler().postDelayed({
             val intent = Intent(this, Tutorial::class.java)
-//            val intent = Intent(this, SignUp::class.java)
             startActivity(intent)
             finish()
-        }, 3000)
+        }, 2000)
     }
 }

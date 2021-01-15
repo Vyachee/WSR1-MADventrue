@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.grinvald.grinvaldmadventure">
 
-    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:allowBackup="true"
@@ -10,9 +10,10 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:usesCleartextTraffic="true"
-        android:theme="@style/Theme.GrinvaldMADventure">
-        <activity android:name=".SignUp"></activity>
+        android:theme="@style/Theme.GrinvaldMADventure"
+        android:usesCleartextTraffic="true">
+        <activity android:name=".PhoneVerification"></activity>
+        <activity android:name=".SignUp" />
         <activity android:name=".SignIn" />
         <activity android:name=".Tutorial" />
         <activity android:name=".MainActivity">

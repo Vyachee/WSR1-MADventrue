@@ -24,6 +24,7 @@ import com.android.volley.Request
 import com.android.volley.Response
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
+import com.grinvald.grinvaldmadventure.common.CacheHelper
 import org.json.JSONObject
 
 class SignUp : AppCompatActivity() {
@@ -34,8 +35,9 @@ class SignUp : AppCompatActivity() {
     lateinit var et_phone : EditText
     lateinit var et_password : EditText
     lateinit var et_password_repeat : EditText
-    lateinit var tv_signup : TextView
+
     lateinit var v_line : View
+
     lateinit var fl_container : FrameLayout
 
     lateinit var tv_email_error : TextView
@@ -43,6 +45,8 @@ class SignUp : AppCompatActivity() {
     lateinit var tv_phone_error : TextView
     lateinit var tv_password_error : TextView
     lateinit var tv_password_repeat_error : TextView
+    lateinit var tv_signin : TextView
+    lateinit var tv_signup : TextView
 
     lateinit var email : String
     lateinit var nickname : String
@@ -61,7 +65,7 @@ class SignUp : AppCompatActivity() {
         et_password_repeat = findViewById(R.id.et_password_repeat)
         tv_signup = findViewById(R.id.tv_signup)
         fl_container = findViewById(R.id.fl_container)
-
+        tv_signin = findViewById(R.id.tv_signin)
         tv_email_error = findViewById(R.id.tv_email_error)
         tv_nickname_error = findViewById(R.id.tv_nickname_error)
         tv_phone_error = findViewById(R.id.tv_phone_error)
@@ -79,7 +83,6 @@ class SignUp : AppCompatActivity() {
         val password_repeat = et_password_repeat.text.toString()
 
         var success : Boolean = true
-
 
         if(!email.contains("@")) {
             tv_email_error.text = "Email must contain \"@\""
@@ -168,6 +171,8 @@ class SignUp : AppCompatActivity() {
             if(validateFields())
                 register(email, nickname, password, phone)
 
+
+
         })
     }
 
@@ -226,15 +231,25 @@ class SignUp : AppCompatActivity() {
 
         val mRequestQueue = Volley.newRequestQueue(this)
         val mStringRequest = object : StringRequest(Request.Method.POST, "http://wsk2019.mad.hakta.pro/api/users", Response.Listener { response ->
-            if(response.equals("Success")) {
-                val intent = Intent(this, SignIn::class.java)
+            if(response.equals("\"Success\"")) {
+
+
+                CacheHelper(this)
+                        .writeAuthData(email, password, phone)
+
+                val intent = Intent(this, PhoneVerification::class.java)
+                intent.putExtra("phone", et_phone.text.toString())
+                intent.putExtra("code", "+" + et_code.text.toString())
                 startActivity(intent)
                 finish()
             }   else {
                 val layoutInflater = LayoutInflater.from(this)
-                val view = layoutInflater.inflate(R.layout.dialog_success, null, false)
+                val view = layoutInflater.inflate(R.layout.dialog_error, null, false)
 
                 val tv_ok = view.findViewById<TextView>(R.id.tv_ok)
+                val tv_description = view.findViewById<TextView>(R.id.tv_description)
+                tv_description.text = "User with such email already exists"
+
                 tv_ok!!.setOnClickListener(View.OnClickListener {
                     fl_container.removeView(view)
                 })
@@ -247,6 +262,10 @@ class SignUp : AppCompatActivity() {
             val view = layoutInflater.inflate(R.layout.dialog_error, null, false)
 
             val tv_ok = view.findViewById<TextView>(R.id.tv_ok)
+
+            val tv_description = view.findViewById<TextView>(R.id.tv_description)
+            tv_description.text = "Something terrible happened"
+
             tv_ok!!.setOnClickListener(View.OnClickListener {
                 fl_container.removeView(view)
             })
