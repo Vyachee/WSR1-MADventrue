@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
 import androidx.viewpager2.widget.ViewPager2
+import com.grinvald.grinvaldmadventure.common.CacheHelper
 
 class MainActivity : AppCompatActivity() {
 
@@ -13,17 +14,15 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-
-//        val intent = Intent(this, PhoneVerification::class.java)
-//        intent.putExtra("phone", "9998884433")
-//        intent.putExtra("code", "+7")
-//        startActivity(intent)
-//        finish()
-
         Handler().postDelayed({
-            val intent = Intent(this, Tutorial::class.java)
-            startActivity(intent)
-            finish()
+
+            val cacheHelper = CacheHelper(this)
+            if(cacheHelper.getToken() != null || cacheHelper.getFacebookToken() != null) {
+                val intent = Intent(this, Tutorial::class.java)
+                startActivity(intent)
+                finish()
+            }
+
         }, 2000)
     }
 }

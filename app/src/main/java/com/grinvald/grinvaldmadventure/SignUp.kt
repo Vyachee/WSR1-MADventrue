@@ -159,6 +159,12 @@ class SignUp : AppCompatActivity() {
         initViews()
         initFields()
 
+        tv_signin.setOnClickListener(View.OnClickListener {
+            val intent = Intent(this, SignIn::class.java)
+            startActivity(intent)
+            finish()
+        })
+
         tv_signup.setOnClickListener(View.OnClickListener {
 
             email = et_email.text.toString()

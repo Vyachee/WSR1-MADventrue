@@ -20,4 +20,22 @@ class CacheHelper (context: Context){
         return prefs.getString("email", "").toString()
     }
 
+    fun writeToken(token: String) {
+        editor.putString("token", token)
+        editor.apply()
+    }
+
+    fun getToken() : String {
+        return prefs.getString("token", null).toString()
+    }
+
+    fun writeFacebookToken(token: String) {
+        editor.putString("facebook_token", token)
+        editor.apply()
+    }
+
+    fun getFacebookToken() : String {
+        return prefs.getString("facebook_token", null).toString()
+    }
+
 }
