@@ -12,6 +12,9 @@
     <color name="gray">#666</color>
     <color name="red">#FF0000</color>
     <color name="light_red">#CF6679</color>
+
+    <color name="dark">#2C2C2D</color>
+
     <color name="com_facebook_blue">#1877F2</color>
     <color name="com_facebook_button_background_color">@color/com_facebook_blue</color>
     <color name="com_facebook_button_background_color_disabled">#EBEDF0</color>

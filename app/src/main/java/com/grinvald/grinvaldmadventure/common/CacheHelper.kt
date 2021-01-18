@@ -16,6 +16,14 @@ class CacheHelper (context: Context){
         editor.apply()
     }
 
+    fun removeAuthData(){
+        editor.remove("email")
+        editor.remove("password")
+        editor.remove("phone")
+        editor.remove("token")
+        editor.remove("facebook_token")
+    }
+
     fun getEmail() : String {
         return prefs.getString("email", "").toString()
     }

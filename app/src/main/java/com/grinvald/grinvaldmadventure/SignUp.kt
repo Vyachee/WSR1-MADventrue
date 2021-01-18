@@ -12,12 +12,15 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.View.INVISIBLE
 import android.view.View.VISIBLE
+import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.FrameLayout
 import android.widget.TextView
 import android.widget.Toast
 import android.widget.Toast.LENGTH_LONG
 import androidx.appcompat.app.AlertDialog
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.constraintlayout.widget.ConstraintSet
 import com.airbnb.paris.extensions.style
 import com.android.volley.AuthFailureError
 import com.android.volley.Request
@@ -25,6 +28,7 @@ import com.android.volley.Response
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
 import com.grinvald.grinvaldmadventure.common.CacheHelper
+import com.grinvald.grinvaldmadventure.common.InternetHelper
 import org.json.JSONObject
 
 class SignUp : AppCompatActivity() {
@@ -35,6 +39,7 @@ class SignUp : AppCompatActivity() {
     lateinit var et_phone : EditText
     lateinit var et_password : EditText
     lateinit var et_password_repeat : EditText
+    lateinit var cl_container : ConstraintLayout
 
     lateinit var v_line : View
 
@@ -71,6 +76,7 @@ class SignUp : AppCompatActivity() {
         tv_phone_error = findViewById(R.id.tv_phone_error)
         tv_password_error = findViewById(R.id.tv_password_error)
         tv_password_repeat_error = findViewById(R.id.tv_password_repeat_error)
+        cl_container = findViewById(R.id.cl_container)
     }
 
     fun validateFields() : Boolean {
@@ -176,10 +182,40 @@ class SignUp : AppCompatActivity() {
 
             if(validateFields())
                 register(email, nickname, password, phone)
-
-
-
         })
+
+        if(InternetHelper(baseContext).checkConnection() == false) {
+            val layoutInflater = LayoutInflater.from(this)
+            val view : View = layoutInflater.inflate(R.layout.dialog_error, null, false)
+
+            view.id = View.generateViewId()
+
+            val set = ConstraintSet()
+
+            set.connect(view.id, ConstraintSet.LEFT, R.id.cl_container, ConstraintSet.LEFT)
+            set.connect(view.id, ConstraintSet.TOP, R.id.cl_container, ConstraintSet.TOP)
+            set.connect(view.id, ConstraintSet.BOTTOM, R.id.cl_container, ConstraintSet.BOTTOM)
+            set.connect(view.id, ConstraintSet.RIGHT, R.id.cl_container, ConstraintSet.RIGHT)
+
+            val layoutParams = ConstraintLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT
+            )
+            view.layoutParams = layoutParams
+
+            set.applyTo(cl_container)
+
+            val tv_ok = view.findViewById<TextView>(R.id.tv_ok)
+
+            val tv_description = view.findViewById<TextView>(R.id.tv_description)
+            tv_description.text = "No internet connection"
+
+            tv_ok!!.setOnClickListener(View.OnClickListener {
+                cl_container.removeView(view)
+            })
+
+            cl_container.addView(view)
+        }
     }
 
     fun initFields() {

@@ -3,10 +3,14 @@ package com.grinvald.grinvaldmadventure
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
+import android.os.VibrationEffect
+import android.os.Vibrator
 import android.view.KeyEvent
 import android.view.View
 import android.widget.EditText
 import android.widget.TextView
+import android.widget.Toast
+import android.widget.Toast.LENGTH_LONG
 import androidx.appcompat.app.AppCompatActivity
 import com.android.volley.Request
 import com.android.volley.Response
@@ -90,6 +94,13 @@ class PhoneVerification : AppCompatActivity() {
             finish()
 
         }, Response.ErrorListener { error ->
+
+            var message = error.message
+            if(message == null || message.isEmpty()) message = "Error"
+            Toast.makeText(baseContext, message, LENGTH_LONG).show()
+            val vibrator : Vibrator = getSystemService(VIBRATOR_SERVICE) as Vibrator
+
+            vibrator.vibrate(VibrationEffect.createOneShot(500, VibrationEffect.DEFAULT_AMPLITUDE))
 
         }) {
             override fun getBodyContentType(): String {
