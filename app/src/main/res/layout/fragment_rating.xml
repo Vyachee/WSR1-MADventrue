@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".Rating">
+
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" >
+
+            <TextView
+                android:id="@+id/textView16"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/gotham"
+                android:textSize="32sp"
+                android:textColor="@color/aqua"
+                android:layout_margin="16dp"
+                android:text="Rating" />
+
+            <TextView
+                android:id="@+id/textView17"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/gotham"
+                android:textSize="24sp"
+                android:textColor="@color/aqua"
+                android:layout_margin="16dp"
+                android:text="Top quests" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_quests"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:id="@+id/textView18"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/gotham"
+                android:textSize="24sp"
+                android:textColor="@color/aqua"
+                android:layout_margin="16dp"
+                android:text="Top quests" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_players"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:id="@+id/textView19"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/gotham"
+                android:textSize="24sp"
+                android:textColor="@color/aqua"
+                android:layout_margin="16dp"
+                android:text="Top authors" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_authors"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+</androidx.constraintlayout.widget.ConstraintLayout>

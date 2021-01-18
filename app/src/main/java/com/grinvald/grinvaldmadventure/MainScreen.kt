@@ -29,6 +29,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.app.ActivityCompat
+import androidx.fragment.app.FragmentTransaction
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -42,6 +43,7 @@ import com.google.android.gms.maps.MapView
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.model.LatLng
 import com.google.gson.Gson
+import com.grinvald.grinvaldmadventure.Adapters.AchievementsAdapter
 import com.grinvald.grinvaldmadventure.Adapters.BestQuestsAdapter
 import com.grinvald.grinvaldmadventure.Adapters.TasksAdapter
 import com.grinvald.grinvaldmadventure.common.CacheHelper
@@ -53,7 +55,7 @@ import com.grinvald.grinvaldmadventure.models.Task
 import com.squareup.picasso.Picasso
 import org.json.JSONObject
 
-class MainScreen : AppCompatActivity(), OnMapReadyCallback, LocationListener {
+class MainScreen : AppCompatActivity() {
 
     lateinit var iv_menu : ImageView
 
@@ -61,36 +63,18 @@ class MainScreen : AppCompatActivity(), OnMapReadyCallback, LocationListener {
     lateinit var ll_slide_menu : LinearLayout
     lateinit var ll_toggler : LinearLayout
     lateinit var ll_arrowContainer : LinearLayout
+    lateinit var ll_compass : LinearLayout
     lateinit var ll_logout : LinearLayout
-
     lateinit var tv_minimize : TextView
-    lateinit var tv_random_quest : TextView
 
     lateinit var iv_minimize : ImageView
     lateinit var iv_maximze : ImageView
 
-    lateinit var tv_quest_title : TextView
-    lateinit var tv_quest_description : TextView
-    lateinit var iv_quest_preview : ImageView
-    lateinit var tv_details : TextView
-
-    lateinit var rv_quests : RecyclerView
-    lateinit var rv_tasks : RecyclerView
-
-    lateinit var mapView : MapView
-
-    lateinit var cl_container : ConstraintLayout
 
     var isToggled = false
     var isSlided = false
     var firstX = 0.00
     var currentX = 0.00
-
-    var columnCount = 2 // default value for landscape
-
-    lateinit var map : GoogleMap
-
-    private lateinit var profile : Profile
 
     private fun initViews() {
 
@@ -107,19 +91,8 @@ class MainScreen : AppCompatActivity(), OnMapReadyCallback, LocationListener {
             iv_menu = findViewById(R.id.iv_menu)
             ll_menu = findViewById(R.id.ll_menu)
         }
-
+        ll_compass = findViewById(R.id.ll_compass)
         ll_logout = findViewById(R.id.ll_logout)
-        cl_container = findViewById(R.id.cl_container)
-        tv_random_quest = findViewById(R.id.tv_random_quest)
-
-        tv_quest_title = findViewById(R.id.tv_quest_title)
-        tv_quest_description = findViewById(R.id.tv_quest_description)
-        iv_quest_preview = findViewById(R.id.iv_quest_preview)
-        tv_details = findViewById(R.id.tv_details)
-
-        mapView = findViewById(R.id.mapView2)
-        rv_quests = findViewById(R.id.rv_quests)
-        rv_tasks = findViewById(R.id.rv_tasks)
 
     }
 
@@ -141,108 +114,29 @@ class MainScreen : AppCompatActivity(), OnMapReadyCallback, LocationListener {
         tv_minimize.visibility = View.GONE
     }
 
-    override fun onMapReady(p0: GoogleMap?) {
-        map = p0!!
-
-    }
-
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if(grantResults.isNotEmpty()
-            && grantResults.get(0) == PackageManager.PERMISSION_GRANTED) {
-
-        }   else {
-            Toast.makeText(baseContext, "This permission is required", LENGTH_SHORT).show()
+    fun toggleMenu() {
+        if (!isSlided) {
+            show()
+        } else {
+            hide()
         }
+        isSlided = !isSlided
     }
 
-    fun getProfile() {
-        val queue = Volley.newRequestQueue(this)
-        val request = object: StringRequest(
-            Request.Method.GET,
-            "http://wsk2019.mad.hakta.pro/api/user/profile",
-            Response.Listener { response ->
-                val json = JSONObject(response).getJSONObject("content").toString()
-
-                val profile: Profile = Gson().fromJson(json, Profile::class.java)
-
-                this.profile = profile
-
-                setTasks()
-                setQuest()
-
-            },
-            Response.ErrorListener { error ->
-
-            }) {
-            override fun getHeaders(): MutableMap<String, String> {
-                val headers = HashMap<String, String>()
-                headers["Token"] = CacheHelper(baseContext).getToken()
-                return headers
-            }
+    fun toggleMenuPortrait() {
+        if (!isToggled) {
+            ll_menu.visibility = View.VISIBLE
+            ll_menu.animate().alpha(1f).setDuration(200)
+        } else {
+            ll_menu.animate().alpha(0f).setDuration(200)
+            Handler().postDelayed(Runnable {
+                ll_menu.visibility = View.INVISIBLE
+            }, 200)
         }
 
-        queue.add(request)
-
+        isToggled = !isToggled
     }
 
-    fun setTasks() {
-        val tasks : MutableList<Task> = profile.createdQuests.get(0).tasks
-        val adapter : TasksAdapter = TasksAdapter(tasks, baseContext)
-        val layoutManager : LinearLayoutManager = LinearLayoutManager(baseContext)
-        rv_tasks.adapter = adapter
-        rv_tasks.layoutManager = layoutManager
-    }
-
-    fun setQuest() {
-        val quest = profile.createdQuests.get(0)
-        tv_quest_title.text = quest.name
-        tv_quest_description.text = quest.description
-        Picasso.get().load(quest.mainPhoto).into(iv_quest_preview)
-    }
-
-    fun getCurrentTask() {
-        val queue = Volley.newRequestQueue(this)
-        val request = object: StringRequest(
-            Request.Method.GET,
-            "http://wsk2019.mad.hakta.pro/api/user/currentTask",
-            Response.Listener { response ->
-                val json = JSONObject(response).getJSONObject("content").toString()
-
-                val currentTask: CurrentTask = Gson().fromJson(json, CurrentTask::class.java)
-
-            },
-            Response.ErrorListener { error ->
-
-            }) {
-            override fun getHeaders(): MutableMap<String, String> {
-                val headers = HashMap<String, String>()
-                headers["Token"] = CacheHelper(baseContext).getToken()
-                return headers
-            }
-        }
-
-        queue.add(request)
-    }
-
-
-
-    override fun onLocationChanged(location: Location) {
-        map.moveCamera(
-            CameraUpdateFactory.newLatLngZoom(
-                LatLng(location.latitude, location.longitude),
-                17f
-            )
-        )
-    }
-
-    override fun onProviderDisabled(provider: String) {
-        Log.d("DEBUG", "disabled")
-    }
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -250,47 +144,19 @@ class MainScreen : AppCompatActivity(), OnMapReadyCallback, LocationListener {
         setContentView(R.layout.activity_main_screen)
         initViews()
 
-        if(InternetHelper(baseContext).checkConnection() == false) {
-            val layoutInflater = LayoutInflater.from(this)
-            val view : View = layoutInflater.inflate(R.layout.dialog_error, null, false)
-
-            view.id = View.generateViewId()
-
-            val set = ConstraintSet()
-
-            set.connect(view.id, ConstraintSet.LEFT, R.id.cl_container, ConstraintSet.LEFT)
-            set.connect(view.id, ConstraintSet.TOP, R.id.cl_container, ConstraintSet.TOP)
-            set.connect(view.id, ConstraintSet.BOTTOM, R.id.cl_container, ConstraintSet.BOTTOM)
-            set.connect(view.id, ConstraintSet.RIGHT, R.id.cl_container, ConstraintSet.RIGHT)
-
-            val layoutParams = ConstraintLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT)
-            view.layoutParams = layoutParams
-
-            set.applyTo(cl_container)
-
-            val tv_ok = view.findViewById<TextView>(R.id.tv_ok)
-
-            val tv_description = view.findViewById<TextView>(R.id.tv_description)
-            tv_description.text = "No internet connection"
-
-            tv_ok!!.setOnClickListener(View.OnClickListener {
-                cl_container.removeView(view)
-            })
-
-            cl_container.addView(view)
-        }
+        ll_compass.setOnClickListener(View.OnClickListener {
+            val manager = supportFragmentManager
+            val transaction = manager.beginTransaction()
+            toggleMenuPortrait()
+            transaction.replace(R.id.fragment, Compass())
+            transaction.commit()
+        })
 
         if(resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
 
             // landscape orientation
             ll_toggler.setOnClickListener(View.OnClickListener {
-
-                if (!isSlided) {
-                    show()
-                } else {
-                    hide()
-                }
-                isSlided = !isSlided
+                toggleMenu()
             })
 
             ll_slide_menu.setOnTouchListener(View.OnTouchListener { view: View, motionEvent: MotionEvent ->
@@ -310,8 +176,6 @@ class MainScreen : AppCompatActivity(), OnMapReadyCallback, LocationListener {
                             if (firstX - currentX > 30)
                                 hide()
                         }
-
-                        Log.d("DEBUG", "currentX: $currentX firstX: $firstX")
                     }
 
                     MotionEvent.ACTION_MOVE -> {
@@ -324,58 +188,11 @@ class MainScreen : AppCompatActivity(), OnMapReadyCallback, LocationListener {
 
         }
         else {
-
             // portrait orientation
-            columnCount = 1
-
             iv_menu.setOnClickListener(View.OnClickListener {
-                if (!isToggled) {
-                    ll_menu.visibility = View.VISIBLE
-                    ll_menu.animate().alpha(1f).setDuration(200)
-                } else {
-                    ll_menu.animate().alpha(0f).setDuration(200)
-                    Handler().postDelayed(Runnable {
-                        ll_menu.visibility = View.INVISIBLE
-                    }, 200)
-                }
-
-                isToggled = !isToggled
+                toggleMenuPortrait()
             })
         }
-
-        tv_random_quest.setOnClickListener(View.OnClickListener {
-            val intent = Intent(this, QuestDetails::class.java)
-            startActivity(intent)
-        })
-
-        mapView.onCreate(savedInstanceState)
-        mapView.getMapAsync(OnMapReadyCallback {
-
-            map = it
-            map.moveCamera(
-                CameraUpdateFactory.newLatLngZoom(LatLng(55.151060, 61.377293), 17f)
-            )
-
-            val locationManager: LocationManager =
-                getSystemService(LOCATION_SERVICE) as LocationManager
-            if (ActivityCompat.checkSelfPermission(
-                    this,
-                    Manifest.permission.ACCESS_FINE_LOCATION
-                ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
-                    this,
-                    Manifest.permission.ACCESS_COARSE_LOCATION
-                ) != PackageManager.PERMISSION_GRANTED
-            ) {
-                requestPermissions(
-                    arrayOf(
-                        Manifest.permission.ACCESS_FINE_LOCATION,
-                        Manifest.permission.ACCESS_COARSE_LOCATION
-                    ), 1
-                )
-            } else
-                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 1f, this)
-
-        })
 
         ll_logout.setOnClickListener(View.OnClickListener {
             val queue = Volley.newRequestQueue(baseContext)
@@ -402,57 +219,8 @@ class MainScreen : AppCompatActivity(), OnMapReadyCallback, LocationListener {
             queue.add(request)
         })
 
-
-        getProfile()
-        loadQuests()
-
     }
 
-
-
-    private fun loadQuests() {
-        val queue = Volley.newRequestQueue(this)
-        val request = object: StringRequest(
-            Request.Method.GET,
-            "http://wsk2019.mad.hakta.pro/api/quests/popular",
-            Response.Listener { response ->
-
-                Log.d("DEBUG", "response: $response")
-
-
-                val json = JSONObject(response).getJSONArray("content")
-
-                val list: MutableList<QuestItem> = mutableListOf()
-
-                for (i in 0..json.length() - 1) {
-                    val item = json.getJSONObject(i)
-//                Log.d("DEBUG", "item: $item")
-//                 TODO: 16.01.2021
-                    val questItem = Gson().fromJson(item.toString(), QuestItem::class.java)
-                    list.add(questItem)
-                }
-
-                val adapter = BestQuestsAdapter(list, baseContext)
-                val layoutManager = GridLayoutManager(baseContext, columnCount)
-
-                rv_quests.adapter = adapter
-                rv_quests.layoutManager = layoutManager
-
-            },
-            Response.ErrorListener { error ->
-
-            }) {
-            override fun getHeaders(): MutableMap<String, String> {
-                val headers = HashMap<String, String>()
-                headers["Token"] = CacheHelper(baseContext).getToken()
-                return headers
-            }
-        }
-
-        Log.d("DEBUG", "token: " + CacheHelper(baseContext).getToken())
-
-        queue.add(request)
-    }
 
     private fun convertPixels(dps: Float) : Int {
         val scale = baseContext.resources.displayMetrics.density
