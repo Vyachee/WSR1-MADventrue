@@ -1,0 +1,313 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".Quests">
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="16dp"
+            android:orientation="vertical" >
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/gotham"
+                android:text="Search quests"
+                android:textColor="@color/aqua"
+                android:textSize="32sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/rounded_dark_background"
+                android:padding="16dp"
+                android:layout_marginTop="16dp"
+                android:orientation="vertical">
+
+                <com.google.android.flexbox.FlexboxLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal"
+                    app:alignItems="center"
+                    app:flexWrap="wrap">
+
+                    <TextView
+                        android:id="@+id/textView23"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="0"
+                        android:fontFamily="@font/gotham"
+                        android:text="Show:"
+                        android:textColor="@color/aqua"
+                        android:textSize="16sp" />
+
+                    <TextView
+                        android:id="@+id/tv_all"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="16dp"
+                        android:layout_marginBottom="4dp"
+                        android:layout_weight="0"
+                        android:background="@drawable/button_default"
+                        android:fontFamily="@font/gotham"
+                        android:paddingLeft="32dp"
+                        android:paddingTop="6dp"
+                        android:paddingRight="32dp"
+                        android:paddingBottom="6dp"
+                        android:text="All"
+                        android:textColor="#fff"
+                        android:textSize="16sp" />
+
+                    <TextView
+                        android:id="@+id/tv_favourites"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="16dp"
+                        android:layout_marginBottom="4dp"
+                        android:layout_weight="0"
+                        android:background="@drawable/button_outline"
+                        android:fontFamily="@font/gotham"
+                        android:paddingLeft="32dp"
+                        android:paddingTop="6dp"
+                        android:paddingRight="32dp"
+                        android:paddingBottom="6dp"
+                        android:text="Favourites"
+                        android:textColor="@color/aqua"
+                        android:textSize="16sp" />
+                </com.google.android.flexbox.FlexboxLayout>
+
+                <com.google.android.flexbox.FlexboxLayout
+                    android:layout_marginTop="16dp"
+                    app:alignItems="center"
+                    app:flexWrap="wrap"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/textView24"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="0"
+                        android:fontFamily="@font/gotham"
+                        android:text="Sort:"
+                        android:textColor="@color/aqua"
+                        android:textSize="16sp" />
+
+                    <TextView
+                        android:id="@+id/tv_popular"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="0"
+                        android:text="Popular"
+                        android:layout_marginBottom="4dp"
+                        android:fontFamily="@font/gotham"
+                        android:textColor="#fff"
+                        android:textSize="16sp"
+                        android:background="@drawable/button_default"
+                        android:paddingTop="6dp"
+                        android:paddingBottom="6dp"
+                        android:paddingRight="32dp"
+                        android:paddingLeft="32dp"
+                        android:layout_marginLeft="16dp"/>
+
+                    <TextView
+                        android:id="@+id/tv_difficult"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="0"
+                        android:text="Difficult"
+                        android:layout_marginBottom="4dp"
+                        android:fontFamily="@font/gotham"
+                        android:textColor="@color/aqua"
+                        android:textSize="16sp"
+                        android:background="@drawable/button_outline"
+                        android:paddingTop="6dp"
+                        android:paddingBottom="6dp"
+                        android:paddingRight="32dp"
+                        android:paddingLeft="32dp"
+                        android:layout_marginRight="16dp"
+                        android:layout_marginLeft="16dp" />
+
+                    <TextView
+                        android:id="@+id/tv_new"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="0"
+                        android:text="New"
+                        android:layout_marginBottom="4dp"
+                        android:fontFamily="@font/gotham"
+                        android:textColor="@color/aqua"
+                        android:textSize="16sp"
+                        android:background="@drawable/button_outline"
+                        android:paddingTop="6dp"
+                        android:paddingBottom="6dp"
+                        android:paddingRight="32dp"
+                        android:paddingLeft="32dp" />
+                </com.google.android.flexbox.FlexboxLayout>
+                <LinearLayout
+                    android:layout_marginTop="16dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/textView25"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="0"
+                        android:fontFamily="@font/gotham"
+                        android:text="Category:"
+                        android:textColor="@color/aqua"
+                        android:textSize="16sp" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="0"
+                        android:layout_marginLeft="16dp"
+                        android:orientation="vertical">
+
+                        <Spinner
+                            android:id="@+id/s_category"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_weight="0"
+                            android:backgroundTint="@color/aqua"
+                            android:foregroundTint="@color/aqua"
+                            android:theme="@style/SpinnerStyle" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="1dp"
+                            android:background="@color/aqua"
+                            android:layout_weight="0"
+                            android:orientation="vertical"></LinearLayout>
+                    </LinearLayout>
+
+                </LinearLayout>
+
+                <com.google.android.flexbox.FlexboxLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginTop="16dp"
+                    app:flexWrap="wrap"
+                    app:alignItems="center"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/textView26"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="0"
+                        android:fontFamily="@font/gotham"
+                        android:text="Tags:"
+                        android:textColor="@color/aqua"
+                        android:textSize="16sp" />
+
+                    <com.google.android.flexbox.FlexboxLayout
+                        android:id="@+id/ll_tags_container"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:flexWrap="wrap"
+                        android:layout_weight="0"
+                        android:orientation="horizontal">
+
+                    </com.google.android.flexbox.FlexboxLayout>
+
+                    <ImageView
+                        android:id="@+id/iv_add_tag"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_weight="0"
+                        android:layout_marginLeft="16dp"
+                        android:src="@drawable/add_tag" />
+
+                </com.google.android.flexbox.FlexboxLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginTop="16dp">
+
+                    <TextView
+                        android:id="@+id/textView27"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="0"
+                        android:fontFamily="@font/gotham"
+                        android:text="Words:"
+                        android:textColor="@color/aqua"
+                        android:textSize="16sp" />
+
+                    <EditText
+                        android:id="@+id/et_words"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="0"
+                        android:ems="10"
+                        android:layout_marginLeft="16dp"
+                        android:theme="@style/EditTextTheme"
+                        android:inputType="textPersonName"
+                        android:textColor="@color/aqua"/>
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/ll_search"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:background="@drawable/button_default"
+                android:gravity="center"
+                android:padding="12dp"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:id="@+id/imageView30"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_weight="0"
+                    android:src="@drawable/lupa_haha" />
+
+                <TextView
+                    android:id="@+id/textView29"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0"
+                    android:fontFamily="@font/gotham"
+                    android:textSize="20sp"
+                    android:textColor="#fff"
+                    android:layout_marginLeft="12dp"
+                    android:text="Search" />
+            </LinearLayout>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_quests"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginTop="16dp">
+
+            </androidx.recyclerview.widget.RecyclerView>
+
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+</LinearLayout>

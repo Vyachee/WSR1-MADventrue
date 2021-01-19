@@ -36,6 +36,6 @@ class MainActivity : AppCompatActivity() {
                 finish()
             }
 
-        }, 2000)
+        }, 100)
     }
 }

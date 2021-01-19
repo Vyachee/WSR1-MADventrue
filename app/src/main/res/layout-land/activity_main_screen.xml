@@ -26,6 +26,7 @@
         android:layout_width="250dp"
         android:layout_height="0dp"
         android:background="#171717"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toEndOf="@+id/ll_slide_menu"
         app:layout_constraintTop_toTopOf="parent">
@@ -73,11 +74,11 @@
 
         <ImageView
             android:id="@+id/iv_send"
-            android:clickable="true"
-            android:foreground="?attr/selectableItemBackground"
             android:layout_width="32dp"
             android:layout_height="32dp"
             android:layout_marginEnd="8dp"
+            android:clickable="true"
+            android:foreground="?attr/selectableItemBackground"
             app:layout_constraintBottom_toBottomOf="@+id/et_text"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@+id/et_text"
@@ -154,6 +155,7 @@
 
 
         <LinearLayout
+            android:id="@+id/ll_quests"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
@@ -178,12 +180,12 @@
                 android:id="@+id/textView8"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:gravity="center_vertical"
                 android:layout_weight="1"
                 android:fontFamily="@font/gotham"
+                android:gravity="center_vertical"
+                android:text="Quests"
                 android:textColor="@color/aqua"
-                android:textSize="10sp"
-                android:text="Quests" />
+                android:textSize="10sp" />
 
 
         </LinearLayout>

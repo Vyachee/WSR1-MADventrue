@@ -30,4 +30,11 @@
         <item name="background">@android:color/transparent</item>
     </style>
 
+    <style name="SpinnerStyle">
+        <item name="android:textColor">@color/aqua</item>
+        <item name="backgroundColor">@color/dark</item>
+        <item name="android:textColorHint">@color/aqua</item>
+    </style>
+
+
 </resources>

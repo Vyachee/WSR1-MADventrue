@@ -4,6 +4,8 @@ import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkInfo
 import androidx.constraintlayout.widget.ConstraintLayout
+import com.grinvald.grinvaldmadventure.models.Category
+import com.grinvald.grinvaldmadventure.models.QuestItem
 
 class InternetHelper(context: Context) {
     val context = context
@@ -22,6 +24,19 @@ class InternetHelper(context: Context) {
             return false
         }
         return false
+    }
+
+    fun getCategories(questList: MutableList<QuestItem>) : MutableList<Category> {
+
+        val list : MutableList<Category> = mutableListOf()
+
+        for(x in questList) {
+            val category = x.category
+            list.add(category)
+        }
+
+        return list
+
     }
 
 }

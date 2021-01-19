@@ -72,6 +72,7 @@ class MainScreen : AppCompatActivity() {
     lateinit var iv_send : ImageView
     lateinit var cl_chat : ConstraintLayout
     lateinit var ll_chat : LinearLayout
+    lateinit var ll_quests : LinearLayout
 
     var isToggled = false
     var isChatToggled = false
@@ -102,6 +103,7 @@ class MainScreen : AppCompatActivity() {
         et_text = findViewById(R.id.et_text)
         iv_send = findViewById(R.id.iv_send)
         ll_chat = findViewById(R.id.ll_chat)
+        ll_quests = findViewById(R.id.ll_quests)
 
         ll_rating = findViewById(R.id.ll_rating)
         ll_logout = findViewById(R.id.ll_logout)
@@ -166,12 +168,9 @@ class MainScreen : AppCompatActivity() {
 
     fun chatHandler() {
         iv_send.setOnClickListener(View.OnClickListener {
-
-
             val text = et_text.text.toString()
             et_text.text = null
             sendMessage(text)
-
         })
 
         iv_refresh.setOnClickListener(View.OnClickListener {
@@ -292,10 +291,19 @@ class MainScreen : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main_screen)
+
         initViews()
         getProfile()
         chatHandler()
 
+        ll_quests.setOnClickListener(View.OnClickListener {
+            val manager = supportFragmentManager
+            val transaction = manager.beginTransaction()
+            if(resources.configuration.orientation != Configuration.ORIENTATION_LANDSCAPE)
+                toggleMenuPortrait()
+            transaction.replace(R.id.fragment, Quests())
+            transaction.commit()
+        })
 
         iv_refresh.setOnClickListener(View.OnClickListener {
             refreshChat()
