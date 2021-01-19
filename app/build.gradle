@@ -40,6 +40,7 @@ dependencies {
     implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
 
+    implementation 'com.github.art2limit:Compass-View:1.0.3'
     implementation 'com.airbnb.android:paris:1.7.2'
     implementation 'com.google.android:flexbox:2.0.1'
     implementation 'com.googlecode.libphonenumber:libphonenumber:7.2.2'
