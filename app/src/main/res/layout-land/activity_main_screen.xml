@@ -21,6 +21,91 @@
         app:srcCompat="@drawable/tutorial_bg" />
 
 
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/cl_chat"
+        android:layout_width="250dp"
+        android:layout_height="0dp"
+        android:background="#171717"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/ll_slide_menu"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/textView20"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:fontFamily="@font/gotham"
+            android:text="Public chat"
+            android:textColor="@color/aqua"
+            android:textSize="28sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_chat"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            app:layout_constraintBottom_toTopOf="@+id/textView22"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textView20" />
+
+        <EditText
+            android:id="@+id/et_text"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="8dp"
+            android:ems="10"
+            android:inputType="textPersonName"
+            android:padding="12dp"
+            android:textColor="#fff"
+            android:textSize="12sp"
+            android:theme="@style/EditTextTheme"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/iv_send"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <ImageView
+            android:id="@+id/iv_send"
+            android:clickable="true"
+            android:foreground="?attr/selectableItemBackground"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_marginEnd="8dp"
+            app:layout_constraintBottom_toBottomOf="@+id/et_text"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/et_text"
+            app:srcCompat="@drawable/send" />
+
+        <TextView
+            android:id="@+id/textView22"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:fontFamily="@font/gotham"
+            android:text="Input your message"
+            android:textColor="@color/aqua"
+            android:textSize="10sp"
+            app:layout_constraintBottom_toTopOf="@+id/et_text"
+            app:layout_constraintStart_toStartOf="@+id/et_text" />
+
+        <ImageView
+            android:id="@+id/iv_refresh"
+            android:layout_width="38dp"
+            android:layout_height="38dp"
+            android:layout_marginBottom="8dp"
+            app:layout_constraintBottom_toTopOf="@+id/textView22"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:srcCompat="@drawable/refresh" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/fragment"
         android:name="com.grinvald.grinvaldmadventure.MainFragment"
@@ -28,7 +113,7 @@
         android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="@+id/imageView9"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/ll_slide_menu"
+        app:layout_constraintStart_toEndOf="@+id/cl_chat"
         app:layout_constraintTop_toTopOf="parent" />
 
     <LinearLayout
@@ -104,6 +189,7 @@
         </LinearLayout>
 
         <LinearLayout
+            android:id="@+id/ll_chat"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
@@ -173,6 +259,7 @@
         </LinearLayout>
 
         <LinearLayout
+            android:id="@+id/ll_rating"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"

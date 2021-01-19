@@ -19,10 +19,7 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
-import android.widget.ImageView
-import android.widget.LinearLayout
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import android.widget.Toast.LENGTH_LONG
 import android.widget.Toast.LENGTH_SHORT
 import androidx.appcompat.app.AppCompatActivity
@@ -45,13 +42,11 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.gson.Gson
 import com.grinvald.grinvaldmadventure.Adapters.AchievementsAdapter
 import com.grinvald.grinvaldmadventure.Adapters.BestQuestsAdapter
+import com.grinvald.grinvaldmadventure.Adapters.ChatAdapter
 import com.grinvald.grinvaldmadventure.Adapters.TasksAdapter
 import com.grinvald.grinvaldmadventure.common.CacheHelper
 import com.grinvald.grinvaldmadventure.common.InternetHelper
-import com.grinvald.grinvaldmadventure.models.CurrentTask
-import com.grinvald.grinvaldmadventure.models.Profile
-import com.grinvald.grinvaldmadventure.models.QuestItem
-import com.grinvald.grinvaldmadventure.models.Task
+import com.grinvald.grinvaldmadventure.models.*
 import com.squareup.picasso.Picasso
 import org.json.JSONObject
 
@@ -64,14 +59,22 @@ class MainScreen : AppCompatActivity() {
     lateinit var ll_toggler : LinearLayout
     lateinit var ll_arrowContainer : LinearLayout
     lateinit var ll_compass : LinearLayout
+    lateinit var ll_rating : LinearLayout
     lateinit var ll_logout : LinearLayout
     lateinit var tv_minimize : TextView
 
     lateinit var iv_minimize : ImageView
     lateinit var iv_maximze : ImageView
 
+    lateinit var rv_chat : RecyclerView
+    lateinit var iv_refresh : ImageView
+    lateinit var et_text : EditText
+    lateinit var iv_send : ImageView
+    lateinit var cl_chat : ConstraintLayout
+    lateinit var ll_chat : LinearLayout
 
     var isToggled = false
+    var isChatToggled = false
     var isSlided = false
     var firstX = 0.00
     var currentX = 0.00
@@ -92,8 +95,32 @@ class MainScreen : AppCompatActivity() {
             ll_menu = findViewById(R.id.ll_menu)
         }
         ll_compass = findViewById(R.id.ll_compass)
+
+        rv_chat = findViewById(R.id.rv_chat)
+        cl_chat = findViewById(R.id.cl_chat)
+        iv_refresh = findViewById(R.id.iv_refresh)
+        et_text = findViewById(R.id.et_text)
+        iv_send = findViewById(R.id.iv_send)
+        ll_chat = findViewById(R.id.ll_chat)
+
+        ll_rating = findViewById(R.id.ll_rating)
         ll_logout = findViewById(R.id.ll_logout)
 
+    }
+
+    override fun onBackPressed() {
+
+        if(isChatToggled) toggleChat()
+        else super.onBackPressed()
+    }
+    fun toggleChat() {
+        if(isChatToggled) {
+            cl_chat.visibility = View.GONE
+        }   else {
+            cl_chat.visibility = View.VISIBLE
+        }
+
+        isChatToggled = !isChatToggled
     }
 
     fun show() {
@@ -137,18 +164,164 @@ class MainScreen : AppCompatActivity() {
         isToggled = !isToggled
     }
 
+    fun chatHandler() {
+        iv_send.setOnClickListener(View.OnClickListener {
+
+
+            val text = et_text.text.toString()
+            et_text.text = null
+            sendMessage(text)
+
+        })
+
+        iv_refresh.setOnClickListener(View.OnClickListener {
+            refreshChat()
+        })
+    }
+
+    lateinit var profile : Profile
+
+    fun getProfile() {
+        val queue = Volley.newRequestQueue(baseContext)
+        val request = object: StringRequest(
+                Request.Method.GET,
+                "http://wsk2019.mad.hakta.pro/api/user/profile",
+                Response.Listener { response ->
+                    val json = JSONObject(response).getJSONObject("content").toString()
+
+                    val profile: Profile = Gson().fromJson(json, Profile::class.java)
+
+                    this.profile = profile
+                    refreshChat()
+                },
+                Response.ErrorListener { error ->
+
+                }) {
+            override fun getHeaders(): MutableMap<String, String> {
+                val headers = HashMap<String, String>()
+                headers["Token"] = CacheHelper(baseContext).getToken()
+                return headers
+            }
+        }
+
+        queue.add(request)
+
+    }
+
+    fun refreshChat() {
+        val queue = Volley.newRequestQueue(baseContext)
+        val request = object : StringRequest(
+                Request.Method.GET,
+                "http://wsk2019.mad.hakta.pro/api/messages",
+                Response.Listener { response ->
+                    val json = JSONObject(response).getJSONArray("content")
+                    val list : MutableList<Message> = mutableListOf()
+
+                    for(x in 0 until json.length()) {
+                        val o = json.getJSONObject(x)
+                        val message : Message = Gson().fromJson(o.toString(), Message::class.java)
+
+                        if(message.author.id.equals(profile.id)) {
+                            message.isOutgoing = true
+                        }
+
+                        list.add(message)
+                    }
+
+                    val linearLayoutManager = LinearLayoutManager(baseContext)
+                    val adapter = ChatAdapter(list, baseContext)
+
+                    rv_chat.adapter = adapter
+                    rv_chat.layoutManager = linearLayoutManager
+
+                    val lastItemPos = rv_chat.adapter!!.itemCount-1
+                    linearLayoutManager.scrollToPositionWithOffset(lastItemPos, 0)
+
+
+                },
+                Response.ErrorListener { error ->
+
+                }) {
+            override fun getHeaders(): MutableMap<String, String> {
+                val params = HashMap<String, String>()
+                params.put("Token", CacheHelper(baseContext).getToken())
+                return params
+            }
+        }
+
+        queue.add(request)
+    }
+
+    fun sendMessage(text: String) {
+        Log.d("DEBUG", "text: $text")
+        val queue = Volley.newRequestQueue(baseContext)
+        val request = object : StringRequest(
+                Request.Method.POST,
+                "http://wsk2019.mad.hakta.pro/api/messages",
+                Response.Listener { response ->
+                    Log.d("DEBUG", "errro: ${response}}")
+                    if(response.equals("\"ok\"")) {
+                        refreshChat()
+                    }
+                },
+                Response.ErrorListener { error ->
+                    Log.d("DEBUG", "errro: ${error.message}")
+                }) {
+            override fun getHeaders(): MutableMap<String, String> {
+                val params = HashMap<String, String>()
+                params.put("Token", CacheHelper(baseContext).getToken())
+                return params
+            }
+
+            override fun getBodyContentType(): String {
+                return "application/json"
+            }
+
+            override fun getBody(): ByteArray {
+                val requestObject = JSONObject()
+                requestObject.put("text", text)
+                return requestObject.toString().toByteArray()
+            }
+        }
+
+        queue.add(request)
+    }
+
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main_screen)
         initViews()
+        getProfile()
+        chatHandler()
+
+
+        iv_refresh.setOnClickListener(View.OnClickListener {
+            refreshChat()
+        })
+
+        ll_chat.setOnClickListener(View.OnClickListener {
+            if(resources.configuration.orientation != Configuration.ORIENTATION_LANDSCAPE)
+                toggleMenuPortrait()
+            toggleChat()
+        })
 
         ll_compass.setOnClickListener(View.OnClickListener {
             val manager = supportFragmentManager
             val transaction = manager.beginTransaction()
-            toggleMenuPortrait()
+            if(resources.configuration.orientation != Configuration.ORIENTATION_LANDSCAPE)
+                toggleMenuPortrait()
             transaction.replace(R.id.fragment, Compass())
+            transaction.commit()
+        })
+
+        ll_rating.setOnClickListener(View.OnClickListener {
+            val manager = supportFragmentManager
+            val transaction = manager.beginTransaction()
+            if(resources.configuration.orientation != Configuration.ORIENTATION_LANDSCAPE)
+                toggleMenuPortrait()
+            transaction.replace(R.id.fragment, Rating())
             transaction.commit()
         })
 

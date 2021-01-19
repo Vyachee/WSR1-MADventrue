@@ -49,7 +49,6 @@
             app:srcCompat="@drawable/burger" />
 
         <ImageView
-            android:id="@+id/imageView11"
             android:layout_width="wrap_content"
             android:layout_height="50dp"
             android:layout_gravity="left"
@@ -75,6 +74,93 @@
                 app:srcCompat="@drawable/logout" />
         </LinearLayout>
     </LinearLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/cl_chat"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="#171717"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/fragment">
+
+        <TextView
+            android:id="@+id/textView20"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:fontFamily="@font/gotham"
+            android:text="Public chat"
+            android:textColor="@color/aqua"
+            android:textSize="28sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_chat"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            app:layout_constraintBottom_toTopOf="@+id/iv_refresh"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textView20" />
+
+        <EditText
+            android:id="@+id/et_text"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="8dp"
+            android:ems="10"
+            android:inputType="textPersonName"
+            android:padding="12dp"
+            android:textColor="#fff"
+            android:textSize="12sp"
+            android:theme="@style/EditTextTheme"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/iv_send"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <ImageView
+            android:id="@+id/iv_send"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_marginEnd="8dp"
+            android:clickable="true"
+            android:foreground="?attr/selectableItemBackground"
+            app:layout_constraintBottom_toBottomOf="@+id/et_text"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/et_text"
+            app:srcCompat="@drawable/send" />
+
+        <TextView
+            android:id="@+id/textView22"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:fontFamily="@font/gotham"
+            android:text="Input your message"
+            android:textColor="@color/aqua"
+            android:textSize="10sp"
+            app:layout_constraintBottom_toTopOf="@+id/et_text"
+            app:layout_constraintStart_toStartOf="@+id/et_text" />
+
+        <ImageView
+            android:id="@+id/iv_refresh"
+            android:layout_width="38dp"
+            android:layout_height="38dp"
+            android:layout_marginBottom="8dp"
+            app:layout_constraintBottom_toTopOf="@+id/textView22"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:srcCompat="@drawable/refresh" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <LinearLayout
         android:id="@+id/ll_menu"
@@ -123,16 +209,17 @@
         </LinearLayout>
 
         <LinearLayout
+            android:id="@+id/ll_chat"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
+            android:clickable="true"
+            android:foreground="?attr/selectableItemBackground"
             android:orientation="horizontal"
             android:paddingLeft="16dp"
             android:paddingTop="8dp"
-            android:paddingBottom="8dp"
-            android:clickable="true"
-            android:foreground="?attr/selectableItemBackground"
-            android:paddingRight="16dp">
+            android:paddingRight="16dp"
+            android:paddingBottom="8dp">
 
             <ImageView
                 android:id="@+id/imageView14"
@@ -190,6 +277,7 @@
         </LinearLayout>
 
         <LinearLayout
+            android:id="@+id/ll_rating"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"

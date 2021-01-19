@@ -2,6 +2,7 @@ package com.grinvald.grinvaldmadventure
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.Configuration
@@ -80,6 +81,7 @@ class MainFragment : Fragment(), OnMapReadyCallback, LocationListener {
     lateinit var tv_temp : TextView
 
     lateinit var map : GoogleMap
+    lateinit var mContext : Context
     private lateinit var profile : Profile
     var columnCount = 2
     var isWeatherReceived = false
@@ -223,7 +225,7 @@ class MainFragment : Fragment(), OnMapReadyCallback, LocationListener {
 
     fun setTasks() {
         val tasks : MutableList<Task> = profile.createdQuests.get(0).tasks
-        val adapter : TasksAdapter = TasksAdapter(tasks, requireContext())
+        val adapter : TasksAdapter = TasksAdapter(tasks, mContext)
         val layoutManager : LinearLayoutManager = LinearLayoutManager(context)
         rv_tasks.adapter = adapter
         rv_tasks.layoutManager = layoutManager
@@ -237,7 +239,7 @@ class MainFragment : Fragment(), OnMapReadyCallback, LocationListener {
     }
 
     fun getCurrentTask() {
-        val queue = Volley.newRequestQueue(requireContext())
+        val queue = Volley.newRequestQueue(mContext)
         val request = object: StringRequest(
             Request.Method.GET,
             "http://wsk2019.mad.hakta.pro/api/user/currentTask",
@@ -260,11 +262,15 @@ class MainFragment : Fragment(), OnMapReadyCallback, LocationListener {
         queue.add(request)
     }
 
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        mContext = context
+    }
+
     fun getWeather(lat: Double, lon: Double) {
 
-        Log.d("DEBUG", "lat $lat lon $lon")
 
-        val queue = Volley.newRequestQueue(requireContext())
+        val queue = Volley.newRequestQueue(mContext)
         val request = object: StringRequest(
             Request.Method.GET,
             "http://wsk2019.mad.hakta.pro/api/weather?lat=$lat&lon=$lon",
@@ -282,7 +288,6 @@ class MainFragment : Fragment(), OnMapReadyCallback, LocationListener {
 
             },
             Response.ErrorListener { error ->
-// 67536c4b-bfd9-cbaa-c46f-67e71577089d
             }) {
             override fun getHeaders(): MutableMap<String, String> {
                 val headers = HashMap<String, String>()
@@ -319,7 +324,7 @@ class MainFragment : Fragment(), OnMapReadyCallback, LocationListener {
     }
 
     private fun loadQuests() {
-        val queue = Volley.newRequestQueue(requireContext())
+        val queue = Volley.newRequestQueue(mContext)
         val request = object: StringRequest(
             Request.Method.GET,
             "http://wsk2019.mad.hakta.pro/api/quests/popular",
@@ -335,8 +340,8 @@ class MainFragment : Fragment(), OnMapReadyCallback, LocationListener {
                     list.add(questItem)
                 }
 
-                val adapter = BestQuestsAdapter(list, requireContext())
-                val layoutManager = GridLayoutManager(requireContext(), columnCount)
+                val adapter = BestQuestsAdapter(list, mContext)
+                val layoutManager = GridLayoutManager(mContext, columnCount)
 
                 rv_quests.adapter = adapter
                 rv_quests.layoutManager = layoutManager
@@ -352,14 +357,14 @@ class MainFragment : Fragment(), OnMapReadyCallback, LocationListener {
             }
         }
 
-        Log.d("DEBUG", "token: " + CacheHelper(requireContext()).getToken())
+        Log.d("DEBUG", "token: " + CacheHelper(mContext).getToken())
 
         queue.add(request)
     }
 
     private fun initAchievements() {
-        val adapter = AchievementsAdapter(profile.achievements, requireContext())
-        val lManager = LinearLayoutManager(requireContext(), RecyclerView.HORIZONTAL, false)
+        val adapter = AchievementsAdapter(profile.achievements, mContext)
+        val lManager = LinearLayoutManager(mContext, RecyclerView.HORIZONTAL, false)
         rv_achievements.adapter = adapter
         rv_achievements.layoutManager = lManager
     }
@@ -381,7 +386,7 @@ class MainFragment : Fragment(), OnMapReadyCallback, LocationListener {
         getProfile()
         loadQuests()
 
-        if(InternetHelper(requireContext()).checkConnection() == false) {
+        if(InternetHelper(mContext).checkConnection() == false) {
             val layoutInflater = LayoutInflater.from(context)
             val view : View = layoutInflater.inflate(R.layout.dialog_error, null, false)
 
@@ -415,7 +420,7 @@ class MainFragment : Fragment(), OnMapReadyCallback, LocationListener {
         }
 
         tv_random_quest.setOnClickListener(View.OnClickListener {
-            val intent = Intent(requireContext(), QuestDetails::class.java)
+            val intent = Intent(mContext, QuestDetails::class.java)
             startActivity(intent)
         })
 
@@ -428,12 +433,12 @@ class MainFragment : Fragment(), OnMapReadyCallback, LocationListener {
             )
 
             val locationManager: LocationManager =
-                requireContext().getSystemService(AppCompatActivity.LOCATION_SERVICE) as LocationManager
+                mContext.getSystemService(AppCompatActivity.LOCATION_SERVICE) as LocationManager
             if (ActivityCompat.checkSelfPermission(
-                    requireContext(),
+                    mContext,
                     Manifest.permission.ACCESS_FINE_LOCATION
                 ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
-                    requireContext(),
+                    mContext,
                     Manifest.permission.ACCESS_COARSE_LOCATION
                 ) != PackageManager.PERMISSION_GRANTED
             ) {

@@ -67,7 +67,7 @@
                         android:layout_height="wrap_content"
                         android:layout_margin="16dp"
                         android:fontFamily="@font/gotham"
-                        android:text="Top quests"
+                        android:text="Top players"
                         android:textColor="@color/aqua"
                         android:textSize="24sp" />
 

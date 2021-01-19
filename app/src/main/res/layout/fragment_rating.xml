@@ -50,7 +50,7 @@
                 android:textSize="24sp"
                 android:textColor="@color/aqua"
                 android:layout_margin="16dp"
-                android:text="Top quests" />
+                android:text="Top players" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rv_players"
