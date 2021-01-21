@@ -771,6 +771,109 @@
             android:textSize="12sp" />
     </LinearLayout>
 
+
+    <LinearLayout
+        android:id="@+id/ll_chat_toggle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/author_chat_bg"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toTopOf="@+id/ll_chat"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <ImageView
+            android:id="@+id/imageView31"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:padding="8dp"
+            app:srcCompat="@drawable/author_chat" />
+
+        <TextView
+            android:id="@+id/textView30"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="16dp"
+            android:layout_weight="1"
+            android:fontFamily="@font/gotham"
+            android:text="Author chat"
+            android:textColor="#fff"
+            android:textSize="14sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/ll_chat"
+        android:layout_width="300dp"
+        android:layout_height="250dp"
+        android:background="#171717"
+        android:orientation="vertical"
+        android:visibility="gone"
+        android:gravity="bottom"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_chat"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            android:layout_weight="1"/>
+
+        <ImageView
+            android:id="@+id/imageView35"
+            android:layout_width="48dp"
+            android:layout_height="46dp"
+            android:layout_gravity="center"
+            android:layout_weight="1"
+            app:srcCompat="@drawable/refresh" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="8dp"
+            android:background="#000"
+            android:layout_weight="0"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/textView36"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/gotham"
+                android:text="Input your message"
+                android:textColor="@color/aqua"
+                android:textSize="8sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <EditText
+                    android:id="@+id/et_chat_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:fontFamily="@font/gotham"
+                    android:textColor="@color/white"
+                    android:theme="@style/EditTextTheme" />
+
+                <ImageView
+                    android:id="@+id/iv_send_message"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:layout_weight="0"
+                    app:srcCompat="@drawable/send" />
+
+
+            </LinearLayout>
+        </LinearLayout>
+
+
+    </LinearLayout>
+
     <com.budiyev.android.codescanner.CodeScannerView
         android:id="@+id/scanner"
         android:visibility="gone"

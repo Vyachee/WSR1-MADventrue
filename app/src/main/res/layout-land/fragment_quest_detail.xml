@@ -866,8 +866,6 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-
-
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_chat"
             android:layout_width="match_parent"
