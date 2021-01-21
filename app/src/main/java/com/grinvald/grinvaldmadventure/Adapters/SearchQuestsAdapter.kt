@@ -1,12 +1,15 @@
 package com.grinvald.grinvaldmadventure.Adapters
 
 import android.content.Context
+import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.grinvald.grinvaldmadventure.MainScreen
+import com.grinvald.grinvaldmadventure.QuestDetail
 import com.grinvald.grinvaldmadventure.R
 import com.grinvald.grinvaldmadventure.common.CacheHelper
 import com.grinvald.grinvaldmadventure.models.QuestItem
@@ -64,6 +67,16 @@ class SearchQuestsAdapter(questsList: MutableList<QuestItem>, context: Context) 
         }
 
         Picasso.get().load(quest.mainPhoto).into(holder.iv_preview)
+
+        holder.tv_details!!.setOnClickListener(View.OnClickListener {
+
+            val fragment = QuestDetail()
+            val extras = Bundle()
+            extras.putSerializable("quest", quest)
+            fragment.arguments = extras
+
+            (context as MainScreen).changeFragment(fragment)
+        })
 
         holder.iv_like!!.setOnClickListener(View.OnClickListener {
             if(isFavourite) {

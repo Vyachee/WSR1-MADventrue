@@ -9,6 +9,7 @@ class QuestItem : Serializable {
         name: String,
         description: String,
         photos: MutableList<String>,
+        creationDate: String,
         startDate: String,
         endDate: String,
         mainPhoto: String,
@@ -23,6 +24,7 @@ class QuestItem : Serializable {
         this.name = name
         this.description = description
         this.photos = photos
+        this.creationDate = creationDate
         this.startDate = startDate
         this.endDate = endDate
         this.mainPhoto = mainPhoto
@@ -38,6 +40,7 @@ class QuestItem : Serializable {
     var name : String
     var description : String
     var photos : MutableList<String>
+    var creationDate : String
     var startDate : String
     var endDate : String
     var mainPhoto : String

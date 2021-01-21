@@ -12,6 +12,7 @@ import com.grinvald.grinvaldmadventure.models.Message
 import com.grinvald.grinvaldmadventure.models.QuestItem
 import com.squareup.picasso.Picasso
 import org.json.JSONObject
+import java.lang.Exception
 import kotlin.math.roundToInt
 
 class ChatAdapter(questsList: MutableList<Message>, context: Context) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
@@ -70,10 +71,14 @@ class ChatAdapter(questsList: MutableList<Message>, context: Context) : Recycler
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val message = questsList.get(position)
 
+        var text = message.text
 
-        val json = JSONObject(message.text)
-        val text = json.getString("text")
+        try {
+            val json = JSONObject(message.text)
+            text = json.getString("text")
+        }   catch (e: Exception) {
 
+        }
 
         if(message.isOutgoing) {
             val h : OutgoingHolder = holder as OutgoingHolder

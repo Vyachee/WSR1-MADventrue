@@ -1,12 +1,15 @@
 package com.grinvald.grinvaldmadventure.Adapters
 
 import android.content.Context
+import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.grinvald.grinvaldmadventure.MainScreen
+import com.grinvald.grinvaldmadventure.QuestDetail
 import com.grinvald.grinvaldmadventure.R
 import com.grinvald.grinvaldmadventure.models.QuestItem
 import com.squareup.picasso.Picasso
@@ -38,6 +41,18 @@ class BestQuestsAdapter(questsList: MutableList<QuestItem>, context: Context) : 
     override fun onBindViewHolder(holder: Holder, position: Int) {
 
         val quest = questsList.get(position)
+
+
+        holder.v.setOnClickListener(View.OnClickListener {
+
+            val fragment = QuestDetail()
+            val extras = Bundle()
+            extras.putSerializable("quest", quest)
+            fragment.arguments = extras
+
+            (context as MainScreen).changeFragment(fragment)
+
+        })
 
         holder.tv_title.setText(quest.name)
         holder.tv_description.text = quest.description.substring(0, 100)

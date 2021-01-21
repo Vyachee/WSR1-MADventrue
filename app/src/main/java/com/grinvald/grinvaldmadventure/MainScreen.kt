@@ -26,6 +26,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.app.ActivityCompat
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -79,6 +80,14 @@ class MainScreen : AppCompatActivity() {
     var isSlided = false
     var firstX = 0.00
     var currentX = 0.00
+
+    public fun changeFragment(fragment: Fragment) {
+        val manager = supportFragmentManager
+        val transaction = manager.beginTransaction()
+        transaction.replace(R.id.fragment, fragment)
+        transaction.addToBackStack(null)
+        transaction.commit()
+    }
 
     private fun initViews() {
 

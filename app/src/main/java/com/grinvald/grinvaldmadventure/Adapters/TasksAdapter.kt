@@ -6,14 +6,23 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
+import com.grinvald.grinvaldmadventure.QuestDetail
 import com.grinvald.grinvaldmadventure.R
 import com.grinvald.grinvaldmadventure.models.Task
 
 class TasksAdapter(list: MutableList<Task>, context: Context) : RecyclerView.Adapter<TasksAdapter.Holder>() {
 
-    val list = list
-    val context = context
+    var list = list
+    var context = context
+    var fragment : Fragment? = null
+
+    constructor(list: MutableList<Task>, context: Context, fragment: Fragment) : this(list, context) {
+        this.list = list
+        this.context = context
+        this.fragment = fragment
+    }
 
     class Holder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val tv_title : TextView = itemView.findViewById(R.id.tv_title)
@@ -32,13 +41,18 @@ class TasksAdapter(list: MutableList<Task>, context: Context) : RecyclerView.Ada
         val item = list.get(position)
         holder.tv_description.text = "Find next clue here..."
         holder.tv_title.text = item.name
-        if(item.status.equals("NOT_STARTED")) {
+        if(item.status.equals("NOT_STARTED") || item.status.equals("IN_PROGRESS")) {
             holder.iv_status.setImageDrawable(context.getDrawable(R.drawable.task_progress))
         }
 
         if(position == list.size - 1) {
             holder.iv_line.visibility = View.GONE
         }
+
+        holder.itemView.setOnClickListener(View.OnClickListener {
+            if(fragment != null)
+                (fragment as QuestDetail).getTaskDetails(item)
+        })
     }
 
     override fun getItemCount(): Int {

@@ -72,7 +72,6 @@ class MainFragment : Fragment(), OnMapReadyCallback, LocationListener {
     lateinit var rv_achievements : RecyclerView
     lateinit var mapView : MapView
 
-
     lateinit var tv_pressure : TextView
     lateinit var tv_wind : TextView
     lateinit var tv_humidity : TextView

@@ -42,6 +42,7 @@ class Tutorial : AppCompatActivity() {
                 "Complete the task!",
                 "Search for secret keys, location detection, step counting and much more..."
         ))
+
         tutorialList.add(TutorialItem(
                 ResourcesCompat.getDrawable(resources, R.drawable.task3, null)!!,
                 "Become a Top Key Finder",
