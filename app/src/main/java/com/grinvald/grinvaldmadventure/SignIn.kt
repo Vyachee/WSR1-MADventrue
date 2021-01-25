@@ -1,5 +1,6 @@
 package com.grinvald.grinvaldmadventure
 
+import android.content.Context
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -27,7 +28,7 @@ import com.grinvald.grinvaldmadventure.common.CacheHelper
 import com.grinvald.grinvaldmadventure.common.InternetHelper
 import org.json.JSONObject
 
-class SignIn : AppCompatActivity() {
+class SignIn(var context: Context) : AppCompatActivity() {
 
     lateinit var et_email : EditText
     lateinit var et_password : EditText
@@ -58,7 +59,8 @@ class SignIn : AppCompatActivity() {
         tv_signin.setOnClickListener(View.OnClickListener {
             val email = et_email.text.toString()
             val password = et_password.text.toString()
-            login(email, password)
+            if(validate(email, password))
+                login(email, password)
         })
 
         if(InternetHelper(baseContext).checkConnection() == false) {
@@ -130,6 +132,13 @@ class SignIn : AppCompatActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         callbackManager.onActivityResult(requestCode, resultCode, data)
         super.onActivityResult(requestCode, resultCode, data)
+    }
+
+    fun validate(email: String?, password: String?) : Boolean {
+        if(email.equals("") || email.isNullOrEmpty()) return false
+        if(!email.contains("@")) return false
+        if(password.equals("") || password.isNullOrEmpty()) return false
+        return true
     }
 
     private fun login(email: String, password: String) {
