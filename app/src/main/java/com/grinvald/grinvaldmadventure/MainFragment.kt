@@ -15,9 +15,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.cardview.widget.CardView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.app.ActivityCompat
@@ -79,6 +81,11 @@ class MainFragment : Fragment(), OnMapReadyCallback, LocationListener {
     lateinit var tv_city : TextView
     lateinit var tv_temp : TextView
 
+    lateinit var ll_no_tasks : LinearLayout
+    lateinit var cv_current_task : CardView
+    lateinit var cv_profile : CardView
+    lateinit var ll_achievements : LinearLayout
+
     lateinit var map : GoogleMap
     lateinit var mContext : Context
     private lateinit var profile : Profile
@@ -88,6 +95,10 @@ class MainFragment : Fragment(), OnMapReadyCallback, LocationListener {
     private fun initViews(view: View) {
         tv_random_quest = view.findViewById(R.id.tv_random_quest)
         cl_container = view.findViewById(R.id.cl_container)
+        cv_profile = view.findViewById(R.id.cv_profile)
+        cv_current_task = view.findViewById(R.id.cv_current_task)
+        ll_no_tasks = view.findViewById(R.id.ll_no_tasks)
+        ll_achievements = view.findViewById(R.id.ll_achievements)
 
         tv_pressure = view.findViewById(R.id.tv_pressure)
         tv_wind  = view.findViewById(R.id.tv_wind)
@@ -208,7 +219,8 @@ class MainFragment : Fragment(), OnMapReadyCallback, LocationListener {
 
                 initProfile()
                 setTasks()
-                setQuest()
+//                setQuest()
+                getCurrentTask()
                 initAchievements()
             },
             Response.ErrorListener { error ->
@@ -246,9 +258,28 @@ class MainFragment : Fragment(), OnMapReadyCallback, LocationListener {
             Request.Method.GET,
             "http://wsk2019.mad.hakta.pro/api/user/currentTask",
             Response.Listener { response ->
-                val json = JSONObject(response).getJSONObject("content").toString()
 
-                val currentTask: CurrentTask = Gson().fromJson(json, CurrentTask::class.java)
+                try {
+
+                    val json = response
+                    val currentTask: CurrentTask = Gson().fromJson(json, CurrentTask::class.java)
+
+                    tv_quest_title.text = currentTask.name
+                    tv_quest_description.text = currentTask.description
+                    if(currentTask.photos.size > 0) {
+                        Picasso.get().load(currentTask.photos.get(0)).into(iv_quest_preview)
+                    }
+                    cv_current_task.visibility = View.VISIBLE
+                    ll_no_tasks.visibility = View.GONE
+
+                    Log.d("DEBUG", "task initialized")
+
+                }   catch (e: Exception) {
+                    e.printStackTrace()
+                    cv_current_task.visibility = View.GONE
+                    ll_no_tasks.visibility = View.VISIBLE
+                    Log.d("DEBUG", "task not initialized")
+                }
 
             },
             Response.ErrorListener { error ->
@@ -364,10 +395,14 @@ class MainFragment : Fragment(), OnMapReadyCallback, LocationListener {
     }
 
     private fun initAchievements() {
-        val adapter = AchievementsAdapter(profile.achievements, mContext)
-        val lManager = LinearLayoutManager(mContext, RecyclerView.HORIZONTAL, false)
-        rv_achievements.adapter = adapter
-        rv_achievements.layoutManager = lManager
+        if(profile.achievements.size > 0) {
+            val adapter = AchievementsAdapter(profile.achievements, mContext)
+            val lManager = LinearLayoutManager(mContext, RecyclerView.HORIZONTAL, false)
+            rv_achievements.adapter = adapter
+            rv_achievements.layoutManager = lManager
+        }   else {
+            ll_achievements.visibility = View.GONE
+        }
     }
 
     override fun onCreateView(
@@ -377,6 +412,10 @@ class MainFragment : Fragment(), OnMapReadyCallback, LocationListener {
         val view = inflater.inflate(R.layout.fragment_main, container, false)
 
         initViews(view)
+
+        cv_profile.setOnClickListener(View.OnClickListener {
+            (mContext as MainScreen).changeFragment(Profile())
+        })
 
         if(resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
 

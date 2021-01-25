@@ -28,7 +28,7 @@ import com.grinvald.grinvaldmadventure.common.CacheHelper
 import com.grinvald.grinvaldmadventure.common.InternetHelper
 import org.json.JSONObject
 
-class SignIn(var context: Context) : AppCompatActivity() {
+class SignIn(var context: Context? = null) : AppCompatActivity() {
 
     lateinit var et_email : EditText
     lateinit var et_password : EditText

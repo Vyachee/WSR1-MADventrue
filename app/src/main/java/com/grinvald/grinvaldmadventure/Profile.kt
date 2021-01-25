@@ -13,6 +13,7 @@ import android.view.ViewGroup
 import android.widget.*
 import android.widget.Toast.LENGTH_LONG
 import androidx.appcompat.app.AppCompatActivity
+import androidx.cardview.widget.CardView
 import androidx.core.app.ActivityCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -21,10 +22,12 @@ import com.android.volley.Response
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
 import com.google.gson.Gson
+import com.grinvald.grinvaldmadventure.Adapters.AchievementsAdapter
 import com.grinvald.grinvaldmadventure.Adapters.BestQuestsAdapter
 import com.grinvald.grinvaldmadventure.Adapters.QuestsRatingAdapter
 import com.grinvald.grinvaldmadventure.common.CacheHelper
 import com.grinvald.grinvaldmadventure.models.Profile
+import com.squareup.picasso.Picasso
 import org.json.JSONObject
 import kotlin.math.roundToInt
 
@@ -39,6 +42,7 @@ class Profile : Fragment(), LocationListener {
     // views
     lateinit var rv_solved : RecyclerView
     lateinit var rv_created : RecyclerView
+    lateinit var rv_achievements : RecyclerView
 
     lateinit var tv_name : TextView
     lateinit var tv_nickname : TextView
@@ -46,6 +50,8 @@ class Profile : Fragment(), LocationListener {
     lateinit var tv_change_password : TextView
     lateinit var tv_email : TextView
     lateinit var tv_city : TextView
+
+    lateinit var cv_achievements : CardView
 
     lateinit var ll_edit_name : LinearLayout
     lateinit var ll_view_name : LinearLayout
@@ -107,6 +113,7 @@ class Profile : Fragment(), LocationListener {
 
         rv_solved = view.findViewById(R.id.rv_solved)
         rv_created = view.findViewById(R.id.rv_created)
+        rv_achievements = view.findViewById(R.id.rv_achievements)
 
         tv_name = view.findViewById(R.id.tv_name)
         tv_nickname = view.findViewById(R.id.tv_nickname)
@@ -114,6 +121,8 @@ class Profile : Fragment(), LocationListener {
         tv_email = view.findViewById(R.id.tv_email)
         tv_city = view.findViewById(R.id.tv_city)
         tv_level = view.findViewById(R.id.tv_level)
+
+        cv_achievements = view.findViewById(R.id.cv_achievements)
 
         et_lastname = view.findViewById(R.id.et_lastname)
         et_firstname = view.findViewById(R.id.et_firstname)
@@ -129,6 +138,17 @@ class Profile : Fragment(), LocationListener {
         ll_view_name = view.findViewById(R.id.ll_view_name)
         ll_view_nickname = view.findViewById(R.id.ll_view_nickname)
         ll_edit_nickname = view.findViewById(R.id.ll_edit_nickname)
+    }
+
+    private fun initAchievements() {
+        if(profile.achievements.size > 0) {
+            val adapter = AchievementsAdapter(profile.achievements, mContext)
+            val lManager = LinearLayoutManager(mContext, RecyclerView.HORIZONTAL, false)
+            rv_achievements.adapter = adapter
+            rv_achievements.layoutManager = lManager
+        }   else {
+            cv_achievements.visibility = View.GONE
+        }
     }
 
     fun initHandlers() {
@@ -175,6 +195,8 @@ class Profile : Fragment(), LocationListener {
         tv_nickname.text = profile.nickName
         tv_name.text = "${profile.firstName} ${profile.lastName}"
         tv_email.text = profile.email
+
+        Picasso.get().load(profile.avatar).into(iv_avatar)
 
         var userRating = profile.userRating.toDouble().roundToInt()
         if(userRating > 5) userRating = 5
@@ -271,6 +293,7 @@ class Profile : Fragment(), LocationListener {
                 this.profile = profile
                 initAdapters()
                 initProfile()
+                initAchievements()
             },
             Response.ErrorListener { error ->
 

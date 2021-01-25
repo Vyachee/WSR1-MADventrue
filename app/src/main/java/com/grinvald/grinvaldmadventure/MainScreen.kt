@@ -203,7 +203,7 @@ class MainScreen : AppCompatActivity() {
                     refreshChat()
                 },
                 Response.ErrorListener { error ->
-
+                    logout()
                 }) {
             override fun getHeaders(): MutableMap<String, String> {
                 val headers = HashMap<String, String>()
@@ -295,6 +295,13 @@ class MainScreen : AppCompatActivity() {
         queue.add(request)
     }
 
+    fun logout() {
+        CacheHelper(baseContext).removeAuthData()
+        Toast.makeText(baseContext, "Logout successful", LENGTH_LONG).show()
+        val intent = Intent(baseContext, SignIn(baseContext)::class.java)
+        startActivity(intent)
+        finish()
+    }
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -392,7 +399,7 @@ class MainScreen : AppCompatActivity() {
                 Response.Listener { response ->
                     CacheHelper(baseContext).removeAuthData()
                     Toast.makeText(baseContext, "Logout successful", LENGTH_LONG).show()
-                    val intent = Intent(baseContext, SignIn::class.java)
+                    val intent = Intent(baseContext, SignIn(baseContext)::class.java)
                     startActivity(intent)
                     finish()
                 },
