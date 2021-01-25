@@ -9,6 +9,17 @@
     <color name="white">#FFFFFFFF</color>
 
     <color name="aqua">#14C7AF</color>
+    <color name="darkAqua">#2E5853</color>
+
+    <color name="progress_step_1">#E8F3F1</color>
+    <color name="bg_step_1">#606262</color>
+
+    <color name="progress_step_2">#BFF196</color>
+    <color name="bg_step_2">#56624D</color>
+
+    <color name="progress_step_3">#90E59C</color>
+    <color name="bg_step_3">#4B5F4E</color>
+
     <color name="gray">#666</color>
     <color name="red">#FF0000</color>
     <color name="light_red">#CF6679</color>

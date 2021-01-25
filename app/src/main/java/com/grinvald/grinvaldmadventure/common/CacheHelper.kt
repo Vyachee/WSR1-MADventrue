@@ -7,6 +7,8 @@ import com.google.gson.Gson
 import com.grinvald.grinvaldmadventure.models.QuestItem
 import org.json.JSONArray
 import org.json.JSONObject
+import java.text.SimpleDateFormat
+import java.util.*
 
 class CacheHelper (context: Context){
 
@@ -19,6 +21,15 @@ class CacheHelper (context: Context){
         editor.putString("password", password)
         editor.putString("phone", phone)
         editor.apply()
+    }
+
+    fun saveLevel(level: String) {
+        editor.putString("level", level)
+        editor.apply()
+    }
+
+    fun getLevel(): String {
+        return prefs.getString("level", "0").toString()
     }
 
     fun removeAuthData(){
@@ -126,6 +137,33 @@ class CacheHelper (context: Context){
         saveFavouritesJson(Gson().toJson(list))
     }
 
+    fun writeSteps(count: Int, date: Date) {
+        val stepsPrefs = context.getSharedPreferences("steps", MODE_PRIVATE)
+        val stepsEditor = stepsPrefs.edit()
 
+        val currentSteps = stepsPrefs.getInt("steps", 0)
+        val stepsToSave = currentSteps + count
+
+        val lastDate = Date(stepsPrefs.getString("date", 0.toString())!!.toLong())
+
+        val simpleDateFormat = SimpleDateFormat("dd")
+
+        val lastDay = simpleDateFormat.format(lastDate)
+        val givenDay = simpleDateFormat.format(date)
+
+        if(!lastDay.equals(givenDay)) {
+            stepsEditor.putInt("steps", count)
+        }   else {
+            stepsEditor.putInt("steps", stepsToSave)
+        }
+
+        stepsEditor.putString("date", date.time.toString())
+        stepsEditor.apply()
+    }
+
+    fun getSteps() : Int {
+        val stepsPrefs = context.getSharedPreferences("steps", MODE_PRIVATE)
+        return stepsPrefs.getInt("steps", 0)
+    }
 
 }

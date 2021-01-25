@@ -706,6 +706,19 @@
                         android:text="Start"
                         android:textColor="#fff"
                         android:textSize="16sp" />
+                    <TextView
+                        android:id="@+id/tv_steps_counter"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:background="@drawable/button_default"
+                        android:fontFamily="@font/gotham"
+                        android:gravity="center"
+                        android:padding="8dp"
+                        android:text="Steps counter"
+                        android:layout_gravity="right"
+                        android:textColor="#fff"
+                        android:textSize="16sp" />
 
                     <androidx.cardview.widget.CardView
                         android:id="@+id/cv_photos_task_container"

@@ -145,6 +145,9 @@ class MainFragment : Fragment(), OnMapReadyCallback, LocationListener {
     fun calcLevel() {
 
         val level = round(ln((calcPoints() / 5) + 1) + 1).toInt()
+
+        CacheHelper(mContext).saveLevel(level.toString())
+
         tv_level_circle.text = level.toString()
         tv_level.text = "Level $level"
 
@@ -319,7 +322,6 @@ class MainFragment : Fragment(), OnMapReadyCallback, LocationListener {
 
     override fun onMapReady(p0: GoogleMap?) {
         map = p0!!
-
     }
 
     private fun loadQuests() {
@@ -423,7 +425,6 @@ class MainFragment : Fragment(), OnMapReadyCallback, LocationListener {
             startActivity(intent)
         })
 
-        mapView.onCreate(savedInstanceState)
         mapView.getMapAsync(OnMapReadyCallback {
 
             map = it
@@ -452,6 +453,8 @@ class MainFragment : Fragment(), OnMapReadyCallback, LocationListener {
 
         })
 
+        mapView.onCreate(savedInstanceState)
+        mapView.onResume()
 
 
         return view

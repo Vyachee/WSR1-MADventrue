@@ -623,6 +623,19 @@
                         android:visibility="gone" />
                 </LinearLayout>
 
+                <TextView
+                    android:id="@+id/tv_steps_counter"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:background="@drawable/button_default"
+                    android:fontFamily="@font/gotham"
+                    android:gravity="center"
+                    android:padding="8dp"
+                    android:text="Steps counter"
+                    android:textColor="#fff"
+                    android:textSize="16sp" />
+
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"

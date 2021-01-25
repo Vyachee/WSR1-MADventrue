@@ -187,7 +187,7 @@ class MainScreen : AppCompatActivity() {
         })
     }
 
-    lateinit var profile : Profile
+    lateinit var profile : com.grinvald.grinvaldmadventure.models.Profile
 
     fun getProfile() {
         val queue = Volley.newRequestQueue(baseContext)
@@ -197,7 +197,7 @@ class MainScreen : AppCompatActivity() {
                 Response.Listener { response ->
                     val json = JSONObject(response).getJSONObject("content").toString()
 
-                    val profile: Profile = Gson().fromJson(json, Profile::class.java)
+                    val profile: com.grinvald.grinvaldmadventure.models.Profile = Gson().fromJson(json, com.grinvald.grinvaldmadventure.models.Profile::class.java)
 
                     this.profile = profile
                     refreshChat()

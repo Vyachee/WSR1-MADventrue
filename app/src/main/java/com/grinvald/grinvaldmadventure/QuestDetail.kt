@@ -3,17 +3,17 @@ package com.grinvald.grinvaldmadventure
 import android.Manifest
 import android.content.ContentValues
 import android.content.Context
-import android.content.DialogInterface
-import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
+import android.location.Location
+import android.location.LocationListener
+import android.location.LocationManager
 import android.media.MediaPlayer
 import android.net.Uri
 import android.os.*
 import android.provider.MediaStore
 import android.text.format.DateUtils
 import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -24,22 +24,43 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.cardview.widget.CardView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
+import androidx.core.app.ActivityCompat
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
+import com.android.volley.Cache
 import com.android.volley.Request
 import com.android.volley.Response
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
-import com.budiyev.android.codescanner.AutoFocusMode
-import com.budiyev.android.codescanner.CodeScanner
-import com.budiyev.android.codescanner.CodeScannerView
-import com.budiyev.android.codescanner.DecodeCallback
-import com.budiyev.android.codescanner.ErrorCallback
-import com.budiyev.android.codescanner.ScanMode
+import com.budiyev.android.codescanner.*
+import com.google.android.gms.common.ConnectionResult
+import com.google.android.gms.common.Scopes
+import com.google.android.gms.common.api.GoogleApiClient
+import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks
+import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener
+import com.google.android.gms.common.api.ResultCallback
+import com.google.android.gms.common.api.Scope
+import com.google.android.gms.common.api.Status;
+import com.google.android.gms.fitness.Fitness;
+import com.google.android.gms.fitness.FitnessOptions
+import com.google.android.gms.fitness.data.DataPoint;
+import com.google.android.gms.fitness.data.DataSource;
+import com.google.android.gms.fitness.data.DataType;
+import com.google.android.gms.fitness.data.Field;
+import com.google.android.gms.fitness.data.Value;
+import com.google.android.gms.fitness.request.DataSourcesRequest;
+import com.google.android.gms.fitness.request.OnDataPointListener;
+import com.google.android.gms.fitness.request.SensorRequest;
+import com.google.android.gms.fitness.result.DataSourcesResult;
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.MapView
+import com.google.android.gms.maps.OnMapReadyCallback
+import com.google.android.gms.maps.model.LatLng
 import com.google.gson.Gson
 import com.grinvald.grinvaldmadventure.Adapters.ChatAdapter
 import com.grinvald.grinvaldmadventure.Adapters.CommentAdapter
@@ -53,100 +74,195 @@ import org.json.JSONObject
 import java.io.File
 import java.io.FileOutputStream
 import java.io.OutputStream
-import java.lang.Exception
 import java.text.SimpleDateFormat
 import java.util.*
+import java.util.concurrent.TimeUnit
 import kotlin.collections.HashMap
 import kotlin.math.roundToInt
 
-class QuestDetail : Fragment() {
+class QuestDetail : Fragment(), OnMapReadyCallback, LocationListener {
 
-    lateinit var mContext : Context
+    lateinit var mContext: Context
 
-    lateinit var tv_difficulty : TextView
-    lateinit var tv_date : TextView
-    lateinit var tv_author : TextView
-    lateinit var tv_category : TextView
-    lateinit var tv_description : TextView
-    lateinit var tv_title : TextView
-    lateinit var tv_status : TextView
-    lateinit var tv_description_task : TextView
-    lateinit var tv_task_title : TextView
-    lateinit var tv_send_comment : TextView
-    lateinit var et_comment_text : EditText
-    lateinit var et_chat_text : EditText
+    lateinit var tv_difficulty: TextView
+    lateinit var tv_date: TextView
+    lateinit var tv_author: TextView
+    lateinit var tv_category: TextView
+    lateinit var tv_description: TextView
+    lateinit var tv_title: TextView
+    lateinit var tv_status: TextView
+    lateinit var tv_description_task: TextView
+    lateinit var tv_task_title: TextView
+    lateinit var tv_send_comment: TextView
+    lateinit var et_comment_text: EditText
+    lateinit var et_chat_text: EditText
 
-    lateinit var codeScanner : CodeScanner
-    lateinit var codeScannerView : CodeScannerView
+    lateinit var codeScanner: CodeScanner
+    lateinit var codeScannerView: CodeScannerView
 
-    lateinit var vp_images_quest : ViewPager2
-    lateinit var vp_images_task : ViewPager2
-    lateinit var ll_dots : LinearLayout
-    lateinit var ll_tags : LinearLayout
-    lateinit var ll_dots_task : LinearLayout
-    lateinit var ll_media_container : LinearLayout
-    lateinit var cv_photos_task_container : CardView
-    lateinit var ll_audio_control : LinearLayout
-    lateinit var ll_task_info : LinearLayout
-    lateinit var ll_add_comment : LinearLayout
-    lateinit var ll_tasks : LinearLayout
-    lateinit var ll_chat_toggle : LinearLayout
-    lateinit var ll_chat : LinearLayout
+    lateinit var vp_images_quest: ViewPager2
+    lateinit var vp_images_task: ViewPager2
+    lateinit var ll_dots: LinearLayout
+    lateinit var ll_tags: LinearLayout
+    lateinit var ll_dots_task: LinearLayout
+    lateinit var ll_media_container: LinearLayout
+    lateinit var cv_photos_task_container: CardView
+    lateinit var ll_audio_control: LinearLayout
+    lateinit var ll_task_info: LinearLayout
+    lateinit var ll_add_comment: LinearLayout
+    lateinit var ll_tasks: LinearLayout
+    lateinit var ll_chat_toggle: LinearLayout
+    lateinit var ll_chat: LinearLayout
 
-    lateinit var rv_tasks : RecyclerView
-    lateinit var rv_comments : RecyclerView
-    lateinit var rv_chat : RecyclerView
+    lateinit var rv_tasks: RecyclerView
+    lateinit var rv_comments: RecyclerView
+    lateinit var rv_chat: RecyclerView
 
-    lateinit var iv_star_1 : ImageView
-    lateinit var iv_star_2 : ImageView
-    lateinit var iv_star_3 : ImageView
-    lateinit var iv_star_4 : ImageView
-    lateinit var iv_star_5 : ImageView
+    lateinit var iv_star_1: ImageView
+    lateinit var iv_star_2: ImageView
+    lateinit var iv_star_3: ImageView
+    lateinit var iv_star_4: ImageView
+    lateinit var iv_star_5: ImageView
 
-    lateinit var iv_star_11 : ImageView
-    lateinit var iv_star_22 : ImageView
-    lateinit var iv_star_33 : ImageView
-    lateinit var iv_star_44 : ImageView
-    lateinit var iv_star_55 : ImageView
+    lateinit var iv_star_11: ImageView
+    lateinit var iv_star_22: ImageView
+    lateinit var iv_star_33: ImageView
+    lateinit var iv_star_44: ImageView
+    lateinit var iv_star_55: ImageView
 
 
-    lateinit var iv_goal_type : ImageView
-    lateinit var iv_send_message : ImageView
-    lateinit var tv_goal_value : TextView
+    lateinit var iv_goal_type: ImageView
+    lateinit var iv_send_message: ImageView
+    lateinit var tv_goal_value: TextView
+    lateinit var tv_steps_counter: TextView
 
-    lateinit var iv_time_icon : ImageView
-    lateinit var tv_time_value : TextView
+    lateinit var iv_time_icon: ImageView
+    lateinit var tv_time_value: TextView
 
-    lateinit var iv_date : ImageView
-    lateinit var tv_date_value : TextView
+    lateinit var iv_date: ImageView
+    lateinit var tv_date_value: TextView
 
-    lateinit var mediaPlayer : MediaPlayer
+    lateinit var mediaPlayer: MediaPlayer
 
-    lateinit var mv_map : MapView
+    lateinit var mv_map: MapView
 
-    lateinit var photos : MutableList<String>
-    lateinit var photosTask : MutableList<String>
-    lateinit var dotsList : MutableList<LinearLayout>
-    lateinit var dotsTaskList : MutableList<LinearLayout>
-    lateinit var stars : MutableList<ImageView>
-    lateinit var commentStars : MutableList<ImageView>
-    lateinit var quest : QuestItem
+    lateinit var photos: MutableList<String>
+    lateinit var photosTask: MutableList<String>
+    lateinit var dotsList: MutableList<LinearLayout>
+    lateinit var dotsTaskList: MutableList<LinearLayout>
+    lateinit var stars: MutableList<ImageView>
+    lateinit var commentStars: MutableList<ImageView>
+    lateinit var quest: QuestItem
     lateinit var detailedTask: TaskDetails
 
-    lateinit var tv_progress : TextView
-    lateinit var iv_audio_toggle : ImageView
-    lateinit var sb_progress : SeekBar
+    lateinit var tv_progress: TextView
+    lateinit var iv_audio_toggle: ImageView
+    lateinit var sb_progress: SeekBar
     lateinit var fragment: Fragment
     lateinit var cl_container: ConstraintLayout
     lateinit var tv_action_button: TextView
     lateinit var tv_date_constraint: TextView
 
     lateinit var currentTask: Task
+    lateinit var map: GoogleMap
 
     var isAudioToggled = false
     var isInterrupted = false
     var isChatToggled = false
     var commentRating = 0
+
+    lateinit var mClient: GoogleApiClient
+    lateinit var TAG: String
+    var listener: OnDataPointListener? = null
+
+    private fun connectFitness() {
+        mClient = GoogleApiClient.Builder(mContext)
+                .addApi(Fitness.SENSORS_API)
+                .addScope(Scope(Scopes.FITNESS_LOCATION_READ)) // GET STEP VALUES
+                .addConnectionCallbacks(object : ConnectionCallbacks {
+                    override fun onConnected(bundle: Bundle?) {
+                        Log.e(TAG, "Connected!!!")
+                        // Now you can make calls to the Fitness APIs.
+                        findFitnessDataSources()
+                    }
+
+                    override fun onConnectionSuspended(i: Int) {
+                        // If your connection to the sensor gets lost at some point,
+                        // you'll be able to determine the reason and react to it here.
+                        if (i == ConnectionCallbacks.CAUSE_NETWORK_LOST) {
+                            Log.i(TAG, "Connection lost.  Cause: Network Lost.")
+                        } else if (i
+                                == ConnectionCallbacks.CAUSE_SERVICE_DISCONNECTED) {
+                            Log.i(TAG,
+                                    "Connection lost.  Reason: Service Disconnected")
+                        }
+                    }
+                }
+                )
+                .enableAutoManage(mContext as FragmentActivity, 0, object : OnConnectionFailedListener {
+                    override fun onConnectionFailed(result: ConnectionResult) {
+                        Log.e(TAG, "!_@@ERROR :: Google Play services connection failed. Cause: " + result.toString())
+                    }
+                })
+                .build()
+    }
+
+    private fun findFitnessDataSources() {
+        Fitness.SensorsApi.findDataSources(
+                mClient,
+                DataSourcesRequest.Builder()
+                        .setDataTypes(DataType.TYPE_STEP_COUNT_DELTA)
+                        .setDataSourceTypes(DataSource.TYPE_DERIVED)
+                        .build())
+                .setResultCallback(object : ResultCallback<DataSourcesResult?> {
+                    override fun onResult(dataSourcesResult: DataSourcesResult) {
+                        Log.e(TAG, "Result: " + dataSourcesResult.getStatus().toString())
+                        for (dataSource in dataSourcesResult.getDataSources()) {
+                            Log.e(TAG, "Data source found: " + dataSource.toString())
+                            Log.e(TAG, "Data Source type: " + dataSource.getDataType().getName())
+
+                            //Let's register a listener to receive Activity data!
+                            if (dataSource.getDataType().equals(DataType.TYPE_STEP_COUNT_DELTA) && listener == null) {
+                                Log.i(TAG, "Data source for TYPE_STEP_COUNT_DELTA found!  Registering.")
+                                registerFitnessDataListener(dataSource, DataType.TYPE_STEP_COUNT_DELTA)
+                            }
+                        }
+                    }
+                })
+    }
+
+    private fun registerFitnessDataListener(dataSource: DataSource, dataType: DataType) {
+
+
+        // [START register_data_listener]
+        listener = object : OnDataPointListener {
+            override fun onDataPoint(dataPoint: DataPoint) {
+                for (field in dataPoint.getDataType().getFields()) {
+                    val steps: Value = dataPoint.getValue(field)
+                    Log.e(TAG, "Detected DataPoint field: " + field.getName())
+                    Log.e(TAG, "Detected DataPoint value: $steps")
+
+                    CacheHelper(mContext).writeSteps(steps.asInt(), Date())
+                }
+            }
+        }
+        Fitness.SensorsApi.add(
+                mClient,
+                SensorRequest.Builder()
+                        .setDataSource(dataSource) // Optional but recommended for custom data sets.
+                        .setDataType(dataType) // Can't be omitted.
+                        .setSamplingRate(1, TimeUnit.SECONDS)
+                        .build(),
+                listener).setResultCallback(object : ResultCallback<Status?> {
+            override fun onResult(status: Status) {
+                if (status.isSuccess()) {
+                    Log.i(TAG, "Listener registered!")
+                } else {
+                    Log.i(TAG, "Listener not registered.")
+                }
+            }
+        })
+    }
 
     fun initViews(view: View) {
         codeScannerView = view.findViewById(R.id.scanner)
@@ -172,6 +288,7 @@ class QuestDetail : Fragment() {
         iv_time_icon = view.findViewById(R.id.iv_time_icon)
         tv_time_value = view.findViewById(R.id.tv_time_value)
         tv_date_value = view.findViewById(R.id.tv_date_value)
+        tv_steps_counter = view.findViewById(R.id.tv_steps_counter)
         tv_date = view.findViewById(R.id.tv_date)
         iv_date = view.findViewById(R.id.iv_date)
 
@@ -232,18 +349,18 @@ class QuestDetail : Fragment() {
     fun initComments() {
         val queue = Volley.newRequestQueue(mContext)
 
-        val mStringRequest = object: StringRequest(
+        val mStringRequest = object : StringRequest(
                 Request.Method.GET,
                 "http://wsk2019.mad.hakta.pro/api/quests/${quest.id}/comment",
                 Response.Listener { response ->
 
                     val o = JSONObject(response).getJSONArray("content")
 
-                    val list : MutableList<Comment> = mutableListOf()
+                    val list: MutableList<Comment> = mutableListOf()
 
-                    for(x in 0 until o.length()) {
+                    for (x in 0 until o.length()) {
                         val jsonComment = o.getJSONObject(x)
-                        val comment : Comment = Gson().fromJson(jsonComment.toString(), Comment::class.java)
+                        val comment: Comment = Gson().fromJson(jsonComment.toString(), Comment::class.java)
                         list.add(comment)
                     }
 
@@ -260,6 +377,7 @@ class QuestDetail : Fragment() {
             override fun getBodyContentType(): String {
                 return "application/json"
             }
+
             override fun getHeaders(): MutableMap<String, String> {
                 val m = HashMap<String, String>()
                 m.put("Token", CacheHelper(mContext).getToken())
@@ -300,15 +418,15 @@ class QuestDetail : Fragment() {
     }
 
     fun initDots(ll: LinearLayout, dots: MutableList<LinearLayout>, photosList: MutableList<String>) {
-        for(i in 0 until photosList.size) {
+        for (i in 0 until photosList.size) {
             val layoutInflater = LayoutInflater.from(requireContext())
-            val dot : LinearLayout = layoutInflater.inflate(R.layout.dot, ll, false) as LinearLayout
+            val dot: LinearLayout = layoutInflater.inflate(R.layout.dot, ll, false) as LinearLayout
 
-            val params : ViewGroup.MarginLayoutParams = dot.layoutParams as ViewGroup.MarginLayoutParams
+            val params: ViewGroup.MarginLayoutParams = dot.layoutParams as ViewGroup.MarginLayoutParams
             params.leftMargin = 16;
             dot.layoutParams = params
 
-            if(i != 1)
+            if (i != 1)
                 dot.background = requireContext().getDrawable(R.drawable.item_inactive)
 
             dots.add(dot)
@@ -324,7 +442,7 @@ class QuestDetail : Fragment() {
     fun killMediaPlayer() {
         try {
             mediaPlayer.release()
-        }   catch (e: Exception) {
+        } catch (e: Exception) {
         }
     }
 
@@ -345,7 +463,7 @@ class QuestDetail : Fragment() {
         })
 
         Thread(Runnable {
-            while(true) {
+            while (true) {
                 val duration = mediaPlayer.duration
                 val current = mediaPlayer.currentPosition
                 val formattedDuration = DateUtils.formatElapsedTime((duration / 1000).toLong())
@@ -365,9 +483,9 @@ class QuestDetail : Fragment() {
 
     fun initMedia(audioFiles: MutableList<String>, videoFiles: MutableList<String>) {
         ll_media_container.removeAllViews()
-        if(audioFiles.size > 0) {
+        if (audioFiles.size > 0) {
 
-            for(x in audioFiles) {
+            for (x in audioFiles) {
 
                 val inflater = LayoutInflater.from(mContext)
                 val view = inflater.inflate(R.layout.audio_item, null, false)
@@ -375,7 +493,7 @@ class QuestDetail : Fragment() {
                 tv_title.text = "Secret transmission"
 
                 view.setOnClickListener(View.OnClickListener {
-                    if(!isAudioToggled) {
+                    if (!isAudioToggled) {
 
                         ll_audio_control.translationY = 150f
                         ll_audio_control.visibility = View.VISIBLE
@@ -393,8 +511,8 @@ class QuestDetail : Fragment() {
             }
         }
 
-        if(videoFiles.size > 0) {
-            for(x in videoFiles) {
+        if (videoFiles.size > 0) {
+            for (x in videoFiles) {
                 val inflater = LayoutInflater.from(mContext)
                 val view = inflater.inflate(R.layout.video_item, null, false)
 
@@ -413,17 +531,17 @@ class QuestDetail : Fragment() {
                     videoView.start()
 
                     iv_audio_toggle.setOnClickListener(View.OnClickListener {
-                        if(videoView.isPlaying) {
+                        if (videoView.isPlaying) {
                             videoView.pause()
                             iv_audio_toggle.setImageDrawable(mContext.getDrawable(R.drawable.play))
-                        }   else {
+                        } else {
                             videoView.resume()
                             iv_audio_toggle.setImageDrawable(mContext.getDrawable(R.drawable.play))
                         }
                     })
 
                     val t = Thread(Runnable {
-                        while(!isInterrupted) {
+                        while (!isInterrupted) {
                             val current = videoView.currentPosition
                             val duration = videoView.duration
 
@@ -476,7 +594,7 @@ class QuestDetail : Fragment() {
     }
 
     fun sendCommentSection() {
-        for(x in 0 until commentStars.size) {
+        for (x in 0 until commentStars.size) {
             commentStars.get(x).setOnClickListener(View.OnClickListener {
                 commentRating = x + 1
                 fillStars(commentRating)
@@ -490,10 +608,10 @@ class QuestDetail : Fragment() {
     }
 
     fun fillStars(until: Int) {
-        for(x in commentStars) {
+        for (x in commentStars) {
             x.setImageDrawable(mContext.getDrawable(R.drawable.star_empty))
         }
-        for(x in 0 until until) {
+        for (x in 0 until until) {
             commentStars.get(x).setImageDrawable(mContext.getDrawable(R.drawable.star_filled))
         }
     }
@@ -501,12 +619,12 @@ class QuestDetail : Fragment() {
     fun sendComment() {
         val queue = Volley.newRequestQueue(mContext)
 
-        val mStringRequest = object: StringRequest(
+        val mStringRequest = object : StringRequest(
                 Request.Method.PUT,
                 "http://wsk2019.mad.hakta.pro/api/quests/${quest.id}/comment",
                 Response.Listener { response ->
 
-                    if(response.equals("\"Success\"")) {
+                    if (response.equals("\"Success\"")) {
                         et_comment_text.text = null
                         fillStars(0)
                         commentRating = 0
@@ -519,6 +637,7 @@ class QuestDetail : Fragment() {
             override fun getBodyContentType(): String {
                 return "application/json"
             }
+
             override fun getHeaders(): MutableMap<String, String> {
                 val m = HashMap<String, String>()
                 m.put("Token", CacheHelper(mContext).getToken())
@@ -544,19 +663,20 @@ class QuestDetail : Fragment() {
 
         Log.d("DEBUG", "status: ${currentTask.status}")
 
-        if(currentTask.status == "NOT_STARTED") {
+        if (currentTask.status == "NOT_STARTED") {
             tv_action_button.visibility = View.VISIBLE
             tv_action_button.text = "Start"
             tv_status.text = "New"
         }
 
-        if(currentTask.status == "IN_PROGRESS") {
+        if (currentTask.status == "IN_PROGRESS") {
             tv_status.text = "In progress"
             tv_action_button.visibility = View.VISIBLE
             tv_action_button.text = "Finish"
+
         }
 
-        if(currentTask.status == "COMPLETED") {
+        if (currentTask.status == "COMPLETED") {
             tv_status.text = "Completed"
             tv_action_button.visibility = View.GONE
             ll_add_comment.visibility = View.VISIBLE
@@ -567,41 +687,41 @@ class QuestDetail : Fragment() {
         initMedia(audio, video)
 
 
-        if(quest.startDate != null && quest.endDate != null) {
+        if (quest.startDate != null && quest.endDate != null) {
 
             tv_date_constraint.text = "Quest is valid from ${quest.startDate} to ${quest.endDate}"
 
             val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
-            val startDate : Date = simpleDateFormat.parse(quest.startDate)
-            val endDate : Date = simpleDateFormat.parse(quest.endDate)
+            val startDate: Date = simpleDateFormat.parse(quest.startDate)
+            val endDate: Date = simpleDateFormat.parse(quest.endDate)
             val currentDate = Date()
 
             // TODO: 21.01.2021 uncomment
 
-//            if(currentDate.time >= startDate.time && currentDate.time <= endDate.time ) {
-//
-//                tv_date_constraint.setTextColor(mContext.getColor(R.color.aqua))
-//                tv_action_button.visibility = View.VISIBLE
-//                tv_title.setTextColor(mContext.getColor(R.color.aqua))
-//                tv_task_title.setTextColor(mContext.getColor(R.color.aqua))
-//
-//            }   else {
-//
-//                tv_date_constraint.setTextColor(mContext.getColor(R.color.light_red))
-//                tv_status.text = "Blocked"
-//                tv_action_button.visibility = View.GONE
-//                tv_title.setTextColor(mContext.getColor(R.color.gray))
-//                tv_task_title.setTextColor(mContext.getColor(R.color.gray))
-//
-//            }
+            if (currentDate.time >= startDate.time && currentDate.time <= endDate.time) {
+
+                tv_date_constraint.setTextColor(mContext.getColor(R.color.aqua))
+                tv_action_button.visibility = View.VISIBLE
+                tv_title.setTextColor(mContext.getColor(R.color.aqua))
+                tv_task_title.setTextColor(mContext.getColor(R.color.aqua))
+
+            } else {
+
+                tv_date_constraint.setTextColor(mContext.getColor(R.color.light_red))
+                tv_status.text = "Blocked"
+                tv_action_button.visibility = View.GONE
+                tv_title.setTextColor(mContext.getColor(R.color.gray))
+                tv_task_title.setTextColor(mContext.getColor(R.color.gray))
+
+            }
 
 
         }
-        if(detailedTask.finishDateConstraint != null && detailedTask.startDateConstraint != null) {
+        if (detailedTask.finishDateConstraint != null && detailedTask.startDateConstraint != null) {
             iv_date.visibility = View.VISIBLE
             tv_date_value.visibility = View.VISIBLE
             tv_date_value.text = "${detailedTask.startDateConstraint} - ${detailedTask.finishDateConstraint}"
-        }   else {
+        } else {
             tv_date_value.visibility = View.GONE
             iv_date.visibility = View.GONE
 
@@ -609,47 +729,51 @@ class QuestDetail : Fragment() {
 
 
 
-        when(detailedTask.goalType) {
+        when (detailedTask.goalType) {
             "STEPS" -> {
                 iv_goal_type.setImageDrawable(mContext.getDrawable(R.drawable.shos))
                 tv_goal_value.text = "${detailedTask.goalValue} steps"
+                tv_steps_counter.visibility = View.VISIBLE
             }
             "LOCATION" -> {
                 iv_goal_type.setImageDrawable(mContext.getDrawable(R.drawable.type_location))
                 tv_goal_value.text = "Find place"
+                tv_steps_counter.visibility = View.GONE
             }
             "SECRET_KEY" -> {
                 iv_goal_type.setImageDrawable(mContext.getDrawable(R.drawable.type_key))
                 tv_goal_value.text = "Find key"
+                tv_steps_counter.visibility = View.GONE
             }
             "QR_CODE" -> {
                 iv_goal_type.setImageDrawable(mContext.getDrawable(R.drawable.type_qr))
                 tv_goal_value.text = "Find QR-code"
+                tv_steps_counter.visibility = View.GONE
             }
         }
 
         tv_time_value.text = "${detailedTask.completionTime} min"
 
 
-        if(detailedTask.photos.size > 0) {
+        if (detailedTask.photos.size > 0) {
             initDots(ll_dots_task, dotsTaskList, detailedTask.photos)
             photosTask = detailedTask.photos
             Log.d("DEBUG", "size: ${photosTask.size}")
 
             var adapter = ImagesAdapter(requireActivity(), "tasks")
             vp_images_task.adapter = adapter
-            vp_images_task.registerOnPageChangeCallback(object: ViewPager2.OnPageChangeCallback() {
+            vp_images_task.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
                 override fun onPageSelected(position: Int) {
                     super.onPageSelected(position)
 
-                    for(x in dotsTaskList)
+                    for (x in dotsTaskList)
                         x.background = requireContext().getDrawable(R.drawable.item_inactive)
 
                     dotsTaskList.get(position).background = requireContext().getDrawable(R.drawable.item_active)
 
                 }
             })
-        }   else {
+        } else {
             cv_photos_task_container.visibility = View.GONE
         }
     }
@@ -660,21 +784,22 @@ class QuestDetail : Fragment() {
 
         val queue = Volley.newRequestQueue(mContext)
 
-        val mStringRequest = object: StringRequest(
-            Request.Method.GET,
-            "http://wsk2019.mad.hakta.pro/api/tasks/${task.id}",
-            Response.Listener { response ->
-                val o = JSONObject(response).getJSONObject("content")
-                val taskDetails : TaskDetails = Gson().fromJson(o.toString(), TaskDetails::class.java)
+        val mStringRequest = object : StringRequest(
+                Request.Method.GET,
+                "http://wsk2019.mad.hakta.pro/api/tasks/${task.id}",
+                Response.Listener { response ->
+                    val o = JSONObject(response).getJSONObject("content")
+                    val taskDetails: TaskDetails = Gson().fromJson(o.toString(), TaskDetails::class.java)
 
-                initTask(taskDetails)
-            },
-            Response.ErrorListener { error ->
-                Log.d("DEBUG", "error: ${error.message}")
-            }) {
+                    initTask(taskDetails)
+                },
+                Response.ErrorListener { error ->
+                    Log.d("DEBUG", "error: ${error.message}")
+                }) {
             override fun getBodyContentType(): String {
                 return "application/json"
             }
+
             override fun getHeaders(): MutableMap<String, String> {
                 val m = HashMap<String, String>()
                 m.put("Token", CacheHelper(mContext).getToken())
@@ -690,12 +815,12 @@ class QuestDetail : Fragment() {
         var key = ""
 
         val dialog = AlertDialog.Builder(mContext)
-            .setView(et)
-            .setTitle("Input your secret key")
-            .setPositiveButton("SEND") { dialog, which ->
-                key = et.text.toString()
-                finishKeyTask(key)
-            }
+                .setView(et)
+                .setTitle("Input your secret key")
+                .setPositiveButton("SEND") { dialog, which ->
+                    key = et.text.toString()
+                    finishKeyTask(key)
+                }
                 .setNegativeButton("CANCEL") { dialog, which -> }
                 .create()
 
@@ -706,7 +831,7 @@ class QuestDetail : Fragment() {
     fun finishKeyTask(key: String) {
         val queue = Volley.newRequestQueue(mContext)
 
-        val mStringRequest = object: StringRequest(
+        val mStringRequest = object : StringRequest(
                 Request.Method.PUT,
                 "http://wsk2019.mad.hakta.pro/api/tasks/${currentTask.id}/result",
                 Response.Listener { response ->
@@ -725,6 +850,7 @@ class QuestDetail : Fragment() {
                 r.put("key", key)
                 return r.toString().toByteArray()
             }
+
             override fun getHeaders(): MutableMap<String, String> {
                 val m = HashMap<String, String>()
                 m.put("Token", CacheHelper(mContext).getToken())
@@ -737,7 +863,7 @@ class QuestDetail : Fragment() {
     fun finishQrTask(key: String) {
         val queue = Volley.newRequestQueue(mContext)
 
-        val mStringRequest = object: StringRequest(
+        val mStringRequest = object : StringRequest(
                 Request.Method.PUT,
                 "http://wsk2019.mad.hakta.pro/api/tasks/${currentTask.id}/result",
                 Response.Listener { response ->
@@ -756,6 +882,7 @@ class QuestDetail : Fragment() {
                 r.put("key", key)
                 return r.toString().toByteArray()
             }
+
             override fun getHeaders(): MutableMap<String, String> {
                 val m = HashMap<String, String>()
                 m.put("Token", CacheHelper(mContext).getToken())
@@ -768,7 +895,7 @@ class QuestDetail : Fragment() {
     fun finishStepsTask(steps: String) {
         val queue = Volley.newRequestQueue(mContext)
 
-        val mStringRequest = object: StringRequest(
+        val mStringRequest = object : StringRequest(
                 Request.Method.PUT,
                 "http://wsk2019.mad.hakta.pro/api/tasks/${currentTask.id}/result",
                 Response.Listener { response ->
@@ -787,6 +914,7 @@ class QuestDetail : Fragment() {
                 r.put("steps", steps)
                 return r.toString().toByteArray()
             }
+
             override fun getHeaders(): MutableMap<String, String> {
                 val m = HashMap<String, String>()
                 m.put("Token", CacheHelper(mContext).getToken())
@@ -799,7 +927,7 @@ class QuestDetail : Fragment() {
     fun finishTask() {
 
 
-        when(detailedTask.goalType) {
+        when (detailedTask.goalType) {
             "STEPS" -> {
                 finishStepsTask(detailedTask.goalValue)
             }
@@ -815,7 +943,7 @@ class QuestDetail : Fragment() {
     }
 
     fun initTags() {
-        for(x in quest.tags) {
+        for (x in quest.tags) {
             val inflater = LayoutInflater.from(requireContext())
             val tag = inflater.inflate(R.layout.quest_tag, null, false)
             val tv_title = tag.findViewById<TextView>(R.id.tv_title)
@@ -826,28 +954,62 @@ class QuestDetail : Fragment() {
 
     fun initRating() {
         var rating = quest.rating.toDouble().roundToInt()
-        if(rating > 5) rating = 5
-        for(x in 0 until rating) {
+        if (rating > 5) rating = 5
+        for (x in 0 until rating) {
             stars.get(x).background = requireContext().getDrawable(R.drawable.star_filled)
         }
     }
 
-    fun initCameraPerms() {
-        if(mContext.checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-            requestPermissions(arrayOf(Manifest.permission.CAMERA), 1)
+    fun checkFitPerms() {
+        if (mContext.checkSelfPermission(Manifest.permission.ACTIVITY_RECOGNITION) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(arrayOf(Manifest.permission.ACTIVITY_RECOGNITION), 2)
         }   else {
+            connectFitness()
+        }
+    }
+
+    fun initCameraPerms() {
+        if (mContext.checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(arrayOf(Manifest.permission.CAMERA), 1)
+        } else {
             initScanner()
         }
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if(grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            initScanner()
+        if (requestCode == 1) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                initScanner()
+            } else {
+                Toast.makeText(mContext, "I need this permission!!!", LENGTH_LONG).show()
+                initCameraPerms()
+            }
         }   else {
-            Toast.makeText(mContext, "I need this permission!!!", LENGTH_LONG).show()
-            initCameraPerms()
+            if(grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                connectFitness()
+            }   else {
+                Toast.makeText(mContext, "I need this permission dude...", LENGTH_LONG).show()
+            }
         }
+    }
+
+    override fun onLocationChanged(location: Location) {
+        map.moveCamera(
+                CameraUpdateFactory.newLatLngZoom(
+                        LatLng(location.latitude, location.longitude),
+                        17f
+                )
+        )
+    }
+
+    override fun onProviderDisabled(provider: String) {
+        Log.d("DEBUG", "disabled")
+    }
+
+    override fun onProviderEnabled(provider: String) {
+        Log.d("DEBUG", "enabled")
     }
 
 
@@ -855,15 +1017,18 @@ class QuestDetail : Fragment() {
                               savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_quest_detail, container, false)
 
+        checkFitPerms()
+
         initViews(view)
+        listener = null
+        TAG = "DEBUG"
 
         dotsList = mutableListOf()
         dotsTaskList = mutableListOf()
 
         fragment = this
 
-
-        val q : QuestItem = requireArguments().getSerializable("quest") as QuestItem
+        val q: QuestItem = requireArguments().getSerializable("quest") as QuestItem
         quest = q
         photos = q.photos
 
@@ -875,6 +1040,14 @@ class QuestDetail : Fragment() {
         sendCommentSection()
         getProfile()
         initChat()
+
+        mv_map.getMapAsync(this)
+        mv_map.onCreate(savedInstanceState)
+        mv_map.onResume()
+
+        tv_steps_counter.setOnClickListener(View.OnClickListener {
+            openStepsCounter()
+        })
 
         tv_action_button.setOnClickListener(View.OnClickListener {
             when (currentTask.status) {
@@ -888,17 +1061,16 @@ class QuestDetail : Fragment() {
         })
 
         iv_audio_toggle.setOnClickListener(View.OnClickListener {
-            if(mediaPlayer.isPlaying) {
+            if (mediaPlayer.isPlaying) {
                 mediaPlayer.pause()
                 iv_audio_toggle.setImageDrawable(mContext.getDrawable(R.drawable.play))
-            }
-            else {
+            } else {
                 mediaPlayer.start()
                 iv_audio_toggle.setImageDrawable(mContext.getDrawable(R.drawable.pause))
             }
         })
 
-        if(q.tasks.size > 0)
+        if (q.tasks.size > 0)
             getTaskDetails(q.tasks.get(0))
 
         mv_map.onCreate(savedInstanceState)
@@ -912,11 +1084,11 @@ class QuestDetail : Fragment() {
 
         var adapter = ImagesAdapter(requireActivity(), "quests")
         vp_images_quest.adapter = adapter
-        vp_images_quest.registerOnPageChangeCallback(object: ViewPager2.OnPageChangeCallback() {
+        vp_images_quest.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
                 super.onPageSelected(position)
 
-                for(x in dotsList)
+                for (x in dotsList)
                     x.background = requireContext().getDrawable(R.drawable.item_inactive)
 
                 dotsList.get(position).background = requireContext().getDrawable(R.drawable.item_active)
@@ -927,13 +1099,14 @@ class QuestDetail : Fragment() {
         return view
     }
 
+
     fun startTask() {
         val mRequestQueue = Volley.newRequestQueue(mContext)
-        val mStringRequest = object: StringRequest(Request.Method.PUT, "http://wsk2019.mad.hakta.pro/api/tasks/${currentTask.id}/start", Response.Listener {response ->
+        val mStringRequest = object : StringRequest(Request.Method.PUT, "http://wsk2019.mad.hakta.pro/api/tasks/${currentTask.id}/start", Response.Listener { response ->
 
-            if(response.equals("\"OK\"")) {
+            if (response.equals("\"OK\"")) {
                 getTaskDetails(currentTask)
-            }   else {
+            } else {
                 Toast.makeText(mContext, "You already have task in progress status", LENGTH_LONG).show()
             }
 
@@ -984,10 +1157,12 @@ class QuestDetail : Fragment() {
         })
 
         tv_save.setOnClickListener(View.OnClickListener {
-            Handler(Looper.getMainLooper()).post { Runnable {
-                val b : Bitmap = Picasso.get().load(url).get()
-                saveMediaToStorage(b)
-            } }
+            Handler(Looper.getMainLooper()).post {
+                Runnable {
+                    val b: Bitmap = Picasso.get().load(url).get()
+                    saveMediaToStorage(b)
+                }
+            }
         })
 
         set.applyTo(cl_container)
@@ -1033,16 +1208,16 @@ class QuestDetail : Fragment() {
     }
 
     fun setTasks() {
-        val tasks : MutableList<Task> = quest.tasks
-        if(tasks.size == 0) {
+        val tasks: MutableList<Task> = quest.tasks
+        if (tasks.size == 0) {
             ll_task_info.visibility = View.GONE
             ll_tasks.visibility = View.GONE
-        }   else {
+        } else {
             ll_task_info.visibility = View.VISIBLE
             ll_tasks.visibility = View.VISIBLE
         }
-        val adapter : TasksAdapter = TasksAdapter(tasks, requireContext(), this)
-        val layoutManager : LinearLayoutManager = LinearLayoutManager(context)
+        val adapter: TasksAdapter = TasksAdapter(tasks, requireContext(), this)
+        val layoutManager: LinearLayoutManager = LinearLayoutManager(context)
 
         rv_tasks.adapter = adapter
         rv_tasks.layoutManager = layoutManager
@@ -1051,9 +1226,9 @@ class QuestDetail : Fragment() {
     fun initChat() {
         ll_chat_toggle.setOnClickListener(View.OnClickListener {
 
-            if(isChatToggled) {
+            if (isChatToggled) {
                 ll_chat.visibility = View.GONE
-            }   else {
+            } else {
                 ll_chat.visibility = View.VISIBLE
             }
 
@@ -1072,7 +1247,7 @@ class QuestDetail : Fragment() {
                 Request.Method.POST,
                 "http://wsk2019.mad.hakta.pro/api/tasks/${currentTask.id}/messages",
                 Response.Listener { response ->
-                    if(response.equals("\"Success\"")) {
+                    if (response.equals("\"Success\"")) {
                         refreshChat()
                         et_chat_text.text = null
                     }
@@ -1099,6 +1274,79 @@ class QuestDetail : Fragment() {
         queue.add(request)
     }
 
+    fun openStepsCounter() {
+        val layoutInflater = LayoutInflater.from(mContext)
+        val view : View = layoutInflater.inflate(R.layout.steps_counter, null, false)
+
+        view.id = View.generateViewId()
+
+        val set = ConstraintSet()
+
+        set.connect(view.id, ConstraintSet.LEFT, R.id.cl_container, ConstraintSet.LEFT)
+        set.connect(view.id, ConstraintSet.TOP, R.id.cl_container, ConstraintSet.TOP)
+        set.connect(view.id, ConstraintSet.BOTTOM, R.id.cl_container, ConstraintSet.BOTTOM)
+        set.connect(view.id, ConstraintSet.RIGHT, R.id.cl_container, ConstraintSet.RIGHT)
+
+        val layoutParams = ConstraintLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT
+        )
+        view.layoutParams = layoutParams
+
+        set.applyTo(cl_container)
+
+        val ll_progress : LinearLayout = view.findViewById(R.id.ll_progress)
+        val ll_from : LinearLayout = view.findViewById(R.id.ll_from)
+        val tv_goal : TextView = view.findViewById(R.id.tv_goal)
+        val tv_current_steps : TextView = view.findViewById(R.id.tv_current_steps)
+        val tv_send : TextView = view.findViewById(R.id.tv_send)
+        val tv_close : TextView = view.findViewById(R.id.tv_close)
+
+        tv_current_steps.text = "Current steps: " + CacheHelper(mContext).getSteps()
+        tv_goal.text = detailedTask.goalValue
+
+        val lParamsProgress : LinearLayout.LayoutParams = ll_progress.layoutParams as LinearLayout.LayoutParams
+        val lParamsFrom : LinearLayout.LayoutParams = ll_from.layoutParams as LinearLayout.LayoutParams
+
+        val progress = 1f
+        val progressPercent = CacheHelper(mContext).getSteps() / detailedTask.goalValue.toDouble()
+        val fromPercent = progress-progressPercent
+
+        if(progressPercent <= 0.2) {
+            ll_progress.setBackgroundColor(mContext.getColor(R.color.progress_step_1))
+            ll_from.setBackgroundColor(mContext.getColor(R.color.bg_step_1))
+        }
+
+        if(progressPercent >= 0.21 && progressPercent <= 0.4) {
+            ll_progress.setBackgroundColor(mContext.getColor(R.color.progress_step_2))
+            ll_from.setBackgroundColor(mContext.getColor(R.color.bg_step_2))
+        }
+
+        if(progressPercent >= 0.41 && progressPercent <= 0.60) {
+            ll_progress.setBackgroundColor(mContext.getColor(R.color.progress_step_3))
+            ll_from.setBackgroundColor(mContext.getColor(R.color.bg_step_3))
+        }
+
+        if(progressPercent >= 0.61) {
+            ll_progress.setBackgroundColor(mContext.getColor(R.color.aqua))
+            ll_from.setBackgroundColor(mContext.getColor(R.color.darkAqua))
+        }
+
+
+        lParamsProgress.weight = fromPercent.toFloat()
+        lParamsFrom.weight = progressPercent.toFloat()
+
+        tv_send.setOnClickListener(View.OnClickListener {
+
+        })
+
+        tv_close.setOnClickListener(View.OnClickListener {
+            cl_container.removeView(view)
+        })
+
+        cl_container.addView(view)
+    }
+
     fun refreshChat() {
         val queue = Volley.newRequestQueue(mContext)
         val request = object : StringRequest(
@@ -1106,13 +1354,13 @@ class QuestDetail : Fragment() {
                 "http://wsk2019.mad.hakta.pro/api/tasks/${currentTask.id}/messages",
                 Response.Listener { response ->
                     val json = JSONObject(response).getJSONArray("content")
-                    val list : MutableList<Message> = mutableListOf()
+                    val list: MutableList<Message> = mutableListOf()
 
-                    for(x in 0 until json.length()) {
+                    for (x in 0 until json.length()) {
                         val o = json.getJSONObject(x)
-                        val message : Message = Gson().fromJson(o.toString(), Message::class.java)
+                        val message: Message = Gson().fromJson(o.toString(), Message::class.java)
 
-                        if(message.author.id.equals(profile.id)) {
+                        if (message.author.id.equals(profile.id)) {
                             message.isOutgoing = true
                         }
 
@@ -1125,7 +1373,7 @@ class QuestDetail : Fragment() {
                     rv_chat.adapter = adapter
                     rv_chat.layoutManager = linearLayoutManager
 
-                    val lastItemPos = rv_chat.adapter!!.itemCount-1
+                    val lastItemPos = rv_chat.adapter!!.itemCount - 1
                     linearLayoutManager.scrollToPositionWithOffset(lastItemPos, 0)
 
 
@@ -1143,16 +1391,16 @@ class QuestDetail : Fragment() {
         queue.add(request)
     }
 
-    lateinit var profile : Profile
+    lateinit var profile: com.grinvald.grinvaldmadventure.models.Profile
     fun getProfile() {
         val queue = Volley.newRequestQueue(mContext)
-        val request = object: StringRequest(
+        val request = object : StringRequest(
                 Request.Method.GET,
                 "http://wsk2019.mad.hakta.pro/api/user/profile",
                 Response.Listener { response ->
                     val json = JSONObject(response).getJSONObject("content").toString()
 
-                    val profile: Profile = Gson().fromJson(json, Profile::class.java)
+                    val profile: com.grinvald.grinvaldmadventure.models.Profile = Gson().fromJson(json, com.grinvald.grinvaldmadventure.models.Profile::class.java)
 
                     this.profile = profile
                     refreshChat()
@@ -1181,18 +1429,44 @@ class QuestDetail : Fragment() {
 
         override fun createFragment(position: Int): Fragment {
             var photo = ""
-            if(type.equals("tasks")) {
+            if (type.equals("tasks")) {
                 Log.d("DEBUG", "pos: $position")
                 var pos = position
-                if(pos == photosTask.size) pos -= 1
+                if (pos == photosTask.size) pos -= 1
                 photo = photosTask.get(pos)
-            }
-            else photo = photos.get(position)
+            } else photo = photos.get(position)
 
             return Photo(fragment).newInstance(photo)
 
         }
 
+    }
+
+
+    override fun onMapReady(p0: GoogleMap?) {
+        Log.d("DEBUG", "map ready")
+        if (p0 != null) {
+            map = p0
+        }
+
+        val locationManager: LocationManager =
+                mContext.getSystemService(AppCompatActivity.LOCATION_SERVICE) as LocationManager
+        if (ActivityCompat.checkSelfPermission(
+                        mContext,
+                        Manifest.permission.ACCESS_FINE_LOCATION
+                ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                        mContext,
+                        Manifest.permission.ACCESS_COARSE_LOCATION
+                ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            requestPermissions(
+                    arrayOf(
+                            Manifest.permission.ACCESS_FINE_LOCATION,
+                            Manifest.permission.ACCESS_COARSE_LOCATION
+                    ), 1
+            )
+        } else
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 1f, this)
     }
 
 }

@@ -55,7 +55,13 @@ class BestQuestsAdapter(questsList: MutableList<QuestItem>, context: Context) : 
         })
 
         holder.tv_title.setText(quest.name)
-        holder.tv_description.text = quest.description.substring(0, 100)
+        var description = quest.description
+
+        if(description.length > 100)
+            description = description.substring(0, 100)
+
+        holder.tv_description.text = description
+
         Picasso.get().load(quest.mainPhoto).into(holder.iv_preview)
 
     }
