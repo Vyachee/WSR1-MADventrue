@@ -6,9 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.Configuration
-import android.location.Location
-import android.location.LocationListener
-import android.location.LocationManager
+import android.location.*
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -264,21 +262,23 @@ class MainFragment : Fragment(), OnMapReadyCallback, LocationListener {
                     val json = response
                     val currentTask: CurrentTask = Gson().fromJson(json, CurrentTask::class.java)
 
-                    tv_quest_title.text = currentTask.name
-                    tv_quest_description.text = currentTask.description
-                    if(currentTask.photos.size > 0) {
-                        Picasso.get().load(currentTask.photos.get(0)).into(iv_quest_preview)
-                    }
+                    tv_quest_title.text = currentTask.quest.name
+                    var description = currentTask.quest.description
+
+                    if(description.length > 100)
+                        description = description.substring(0, 100)
+
+                    tv_quest_description.text = description
+
+                    Picasso.get().load(currentTask.quest.mainPhoto).into(iv_quest_preview)
                     cv_current_task.visibility = View.VISIBLE
                     ll_no_tasks.visibility = View.GONE
 
-                    Log.d("DEBUG", "task initialized")
 
                 }   catch (e: Exception) {
                     e.printStackTrace()
                     cv_current_task.visibility = View.GONE
                     ll_no_tasks.visibility = View.VISIBLE
-                    Log.d("DEBUG", "task not initialized")
                 }
 
             },
@@ -342,12 +342,22 @@ class MainFragment : Fragment(), OnMapReadyCallback, LocationListener {
             )
         )
 
+        val geocoder = Geocoder(mContext)
+        val matches : MutableList<Address> = geocoder.getFromLocation(location.latitude, location.longitude, 1)
+        val address = matches.get(0)
+        val currentCity = address.subAdminArea
+        tv_city.text = currentCity
+
         if(!isWeatherReceived)
             getWeather(location.latitude, location.longitude)
     }
 
     override fun onProviderDisabled(provider: String) {
-        Log.d("DEBUG", "disabled")
+
+    }
+
+    override fun onProviderEnabled(provider: String) {
+
     }
 
 

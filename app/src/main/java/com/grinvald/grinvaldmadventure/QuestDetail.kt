@@ -1,6 +1,7 @@
 package com.grinvald.grinvaldmadventure
 
 import android.Manifest
+import android.app.Activity
 import android.content.ContentValues
 import android.content.Context
 import android.content.pm.PackageManager
@@ -31,7 +32,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
-import com.android.volley.Cache
 import com.android.volley.Request
 import com.android.volley.Response
 import com.android.volley.toolbox.StringRequest
@@ -44,18 +44,16 @@ import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks
 import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener
 import com.google.android.gms.common.api.ResultCallback
 import com.google.android.gms.common.api.Scope
-import com.google.android.gms.common.api.Status;
-import com.google.android.gms.fitness.Fitness;
-import com.google.android.gms.fitness.FitnessOptions
-import com.google.android.gms.fitness.data.DataPoint;
-import com.google.android.gms.fitness.data.DataSource;
-import com.google.android.gms.fitness.data.DataType;
-import com.google.android.gms.fitness.data.Field;
-import com.google.android.gms.fitness.data.Value;
-import com.google.android.gms.fitness.request.DataSourcesRequest;
-import com.google.android.gms.fitness.request.OnDataPointListener;
-import com.google.android.gms.fitness.request.SensorRequest;
-import com.google.android.gms.fitness.result.DataSourcesResult;
+import com.google.android.gms.common.api.Status
+import com.google.android.gms.fitness.Fitness
+import com.google.android.gms.fitness.data.DataPoint
+import com.google.android.gms.fitness.data.DataSource
+import com.google.android.gms.fitness.data.DataType
+import com.google.android.gms.fitness.data.Value
+import com.google.android.gms.fitness.request.DataSourcesRequest
+import com.google.android.gms.fitness.request.OnDataPointListener
+import com.google.android.gms.fitness.request.SensorRequest
+import com.google.android.gms.fitness.result.DataSourcesResult
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.MapView
@@ -175,36 +173,40 @@ class QuestDetail : Fragment(), OnMapReadyCallback, LocationListener {
     lateinit var TAG: String
     var listener: OnDataPointListener? = null
 
-    private fun connectFitness() {
+    private fun createClient() {
         mClient = GoogleApiClient.Builder(mContext)
                 .addApi(Fitness.SENSORS_API)
                 .addScope(Scope(Scopes.FITNESS_LOCATION_READ)) // GET STEP VALUES
                 .addConnectionCallbacks(object : ConnectionCallbacks {
                     override fun onConnected(bundle: Bundle?) {
-                        Log.e(TAG, "Connected!!!")
-                        // Now you can make calls to the Fitness APIs.
                         findFitnessDataSources()
                     }
 
                     override fun onConnectionSuspended(i: Int) {
-                        // If your connection to the sensor gets lost at some point,
-                        // you'll be able to determine the reason and react to it here.
-                        if (i == ConnectionCallbacks.CAUSE_NETWORK_LOST) {
-                            Log.i(TAG, "Connection lost.  Cause: Network Lost.")
-                        } else if (i
-                                == ConnectionCallbacks.CAUSE_SERVICE_DISCONNECTED) {
-                            Log.i(TAG,
-                                    "Connection lost.  Reason: Service Disconnected")
-                        }
                     }
                 }
                 )
                 .enableAutoManage(mContext as FragmentActivity, 0, object : OnConnectionFailedListener {
                     override fun onConnectionFailed(result: ConnectionResult) {
-                        Log.e(TAG, "!_@@ERROR :: Google Play services connection failed. Cause: " + result.toString())
                     }
                 })
                 .build()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        mClient.stopAutoManage(requireActivity())
+        mClient.disconnect()
+    }
+
+    private fun connectFitness() {
+        if(this::mClient.isInitialized) {
+            if(!mClient.isConnected) {
+                createClient()
+            }
+        }   else
+            createClient()
+
     }
 
     private fun findFitnessDataSources() {
@@ -216,14 +218,8 @@ class QuestDetail : Fragment(), OnMapReadyCallback, LocationListener {
                         .build())
                 .setResultCallback(object : ResultCallback<DataSourcesResult?> {
                     override fun onResult(dataSourcesResult: DataSourcesResult) {
-                        Log.e(TAG, "Result: " + dataSourcesResult.getStatus().toString())
                         for (dataSource in dataSourcesResult.getDataSources()) {
-                            Log.e(TAG, "Data source found: " + dataSource.toString())
-                            Log.e(TAG, "Data Source type: " + dataSource.getDataType().getName())
-
-                            //Let's register a listener to receive Activity data!
                             if (dataSource.getDataType().equals(DataType.TYPE_STEP_COUNT_DELTA) && listener == null) {
-                                Log.i(TAG, "Data source for TYPE_STEP_COUNT_DELTA found!  Registering.")
                                 registerFitnessDataListener(dataSource, DataType.TYPE_STEP_COUNT_DELTA)
                             }
                         }
@@ -232,15 +228,10 @@ class QuestDetail : Fragment(), OnMapReadyCallback, LocationListener {
     }
 
     private fun registerFitnessDataListener(dataSource: DataSource, dataType: DataType) {
-
-
-        // [START register_data_listener]
         listener = object : OnDataPointListener {
             override fun onDataPoint(dataPoint: DataPoint) {
                 for (field in dataPoint.getDataType().getFields()) {
                     val steps: Value = dataPoint.getValue(field)
-                    Log.e(TAG, "Detected DataPoint field: " + field.getName())
-                    Log.e(TAG, "Detected DataPoint value: $steps")
 
                     CacheHelper(mContext).writeSteps(steps.asInt(), Date())
                 }
@@ -249,17 +240,13 @@ class QuestDetail : Fragment(), OnMapReadyCallback, LocationListener {
         Fitness.SensorsApi.add(
                 mClient,
                 SensorRequest.Builder()
-                        .setDataSource(dataSource) // Optional but recommended for custom data sets.
-                        .setDataType(dataType) // Can't be omitted.
+                        .setDataSource(dataSource)
+                        .setDataType(dataType)
                         .setSamplingRate(1, TimeUnit.SECONDS)
                         .build(),
                 listener).setResultCallback(object : ResultCallback<Status?> {
             override fun onResult(status: Status) {
-                if (status.isSuccess()) {
-                    Log.i(TAG, "Listener registered!")
-                } else {
-                    Log.i(TAG, "Listener not registered.")
-                }
+
             }
         })
     }

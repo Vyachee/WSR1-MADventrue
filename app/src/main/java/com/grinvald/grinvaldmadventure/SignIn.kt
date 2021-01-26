@@ -117,11 +117,11 @@ class SignIn(var context: Context? = null) : AppCompatActivity() {
                 }
 
                 override fun onCancel() {
-                    TODO("Not yet implemented")
+
                 }
 
                 override fun onError(error: FacebookException?) {
-                    TODO("Not yet implemented")
+
                 }
 
             })

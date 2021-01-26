@@ -39,7 +39,7 @@ class Profile : Fragment(), LocationListener {
     lateinit var currentCity : String
     private lateinit var profile : Profile
 
-    // views
+
     lateinit var rv_solved : RecyclerView
     lateinit var rv_created : RecyclerView
     lateinit var rv_achievements : RecyclerView
@@ -67,8 +67,7 @@ class Profile : Fragment(), LocationListener {
     lateinit var iv_save_nickname : ImageView
     lateinit var iv_edit_nickname : ImageView
     lateinit var iv_edit_name : ImageView
-    lateinit var iv_edit : ImageView // edit avatar icon
-
+    lateinit var iv_edit : ImageView
 
     lateinit var iv_star_1 : ImageView
     lateinit var iv_star_2 : ImageView
@@ -356,11 +355,15 @@ class Profile : Fragment(), LocationListener {
     }
 
     override fun onProviderDisabled(provider: String) {
-        Log.d("DEBUG", "provider disabled")
+//        Log.d("DEBUG", "provider disabled")
     }
 
     override fun onProviderEnabled(provider: String) {
-        Log.d("DEBUG", "provider enabled")
+//        Log.d("DEBUG", "provider enabled")
+    }
+
+    override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {
+
     }
 
     override fun onLocationChanged(location: Location) {

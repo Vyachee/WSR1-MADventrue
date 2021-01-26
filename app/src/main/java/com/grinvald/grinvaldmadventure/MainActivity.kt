@@ -23,10 +23,6 @@ class MainActivity : AppCompatActivity() {
             val facebookToken = cacheHelper.getFacebookToken()
 
             if(!defaultToken.equals("null") || !cacheHelper.getFacebookToken().equals("null")) {
-
-                Log.d("DEBUG", "token: $defaultToken")
-                Log.d("DEBUG", "facebook token: $facebookToken")
-
                 val intent = Intent(this, MainScreen::class.java)
                 startActivity(intent)
                 finish()
@@ -36,6 +32,6 @@ class MainActivity : AppCompatActivity() {
                 finish()
             }
 
-        }, 100)
+        }, 2000)
     }
 }

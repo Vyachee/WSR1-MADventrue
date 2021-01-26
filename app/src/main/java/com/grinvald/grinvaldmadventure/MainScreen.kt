@@ -31,6 +31,7 @@ import androidx.fragment.app.FragmentTransaction
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.android.volley.Request
 import com.android.volley.Response
 import com.android.volley.toolbox.StringRequest
@@ -75,6 +76,8 @@ class MainScreen : AppCompatActivity() {
     lateinit var ll_chat : LinearLayout
     lateinit var ll_quests : LinearLayout
 
+    lateinit var swipeRefreshLayout: SwipeRefreshLayout
+
     var isToggled = false
     var isChatToggled = false
     var isSlided = false
@@ -105,6 +108,8 @@ class MainScreen : AppCompatActivity() {
             ll_menu = findViewById(R.id.ll_menu)
         }
         ll_compass = findViewById(R.id.ll_compass)
+
+        swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout)
 
         rv_chat = findViewById(R.id.rv_chat)
         cl_chat = findViewById(R.id.cl_chat)
@@ -245,6 +250,7 @@ class MainScreen : AppCompatActivity() {
                     val lastItemPos = rv_chat.adapter!!.itemCount-1
                     linearLayoutManager.scrollToPositionWithOffset(lastItemPos, 0)
 
+                    swipeRefreshLayout.isRefreshing = false
 
                 },
                 Response.ErrorListener { error ->
@@ -309,6 +315,12 @@ class MainScreen : AppCompatActivity() {
         setContentView(R.layout.activity_main_screen)
 
         initViews()
+
+
+        swipeRefreshLayout.setOnRefreshListener(SwipeRefreshLayout.OnRefreshListener {
+            refreshChat()
+        })
+
         getProfile()
         chatHandler()
 
