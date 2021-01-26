@@ -60,6 +60,7 @@ class Profile : Fragment(), LocationListener {
 
     lateinit var et_firstname : EditText
     lateinit var et_lastname : EditText
+    lateinit var et_nickname : EditText
 
     lateinit var iv_avatar : ImageView
     lateinit var iv_save_name : ImageView
@@ -126,6 +127,7 @@ class Profile : Fragment(), LocationListener {
 
         et_lastname = view.findViewById(R.id.et_lastname)
         et_firstname = view.findViewById(R.id.et_firstname)
+        et_nickname = view.findViewById(R.id.et_nickname)
 
         iv_avatar = view.findViewById(R.id.iv_avatar)
         iv_edit = view.findViewById(R.id.iv_edit)
@@ -156,19 +158,14 @@ class Profile : Fragment(), LocationListener {
         iv_edit_name.setOnClickListener(View.OnClickListener {
             ll_view_name.visibility = View.GONE
             ll_edit_name.visibility = View.VISIBLE
+
+            et_firstname.setText(profile.firstName)
+            et_lastname.setText(profile.lastName)
         })
 
         iv_save_name.setOnClickListener(View.OnClickListener {
             ll_view_name.visibility = View.VISIBLE
             ll_edit_name.visibility = View.GONE
-        })
-
-        iv_edit_nickname.setOnClickListener(View.OnClickListener {
-            ll_edit_nickname.visibility = View.VISIBLE
-            ll_view_nickname.visibility = View.GONE
-        })
-
-        iv_save_nickname.setOnClickListener(View.OnClickListener {
 
             val firstname = et_firstname.text.toString()
             val lastname = et_lastname.text.toString()
@@ -183,9 +180,35 @@ class Profile : Fragment(), LocationListener {
 
                 editProfile(data)
 
+            }
+
+        })
+
+        iv_edit_nickname.setOnClickListener(View.OnClickListener {
+            ll_edit_nickname.visibility = View.VISIBLE
+            ll_view_nickname.visibility = View.GONE
+            et_nickname.setText(profile.nickName)
+        })
+
+        iv_save_nickname.setOnClickListener(View.OnClickListener {
+
+            val nickName = et_nickname.text.toString()
+
+            if(nickName.isEmpty()) {
+                Toast.makeText(mContext, "Fill all fields!", LENGTH_LONG).show()
+            }   else {
+
+                val data = JSONObject()
+                data.put("nickName", nickName)
+
+                editProfile(data)
+
                 ll_view_nickname.visibility = View.VISIBLE
                 ll_edit_nickname.visibility = View.GONE
+
             }
+
+
 
 
         })
@@ -244,6 +267,8 @@ class Profile : Fragment(), LocationListener {
             "http://wsk2019.mad.hakta.pro/api/user/profile",
             Response.Listener { response ->
                 Log.d("DEBUG", "r: $response")
+                profile = Gson().fromJson(response, Profile::class.java)
+                initProfile()
             },
             Response.ErrorListener { error ->
                 Log.d("DEBUG", "r: ${error.message}")
